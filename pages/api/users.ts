@@ -1,7 +1,6 @@
-import type { NextApiRequest, NextApiResponse } from 'next';
-import { PrismaClient, User } from '@prisma/client';
-
-const prisma = new PrismaClient();
+import type { NextApiRequest, NextApiResponse } from "next";
+import { User } from "@prisma/client";
+import prisma from "../../lib/prisma";
 
 type Data = {
   users?: User[];
@@ -10,7 +9,7 @@ type Data = {
 
 export default async (req: NextApiRequest, res: NextApiResponse<Data>) => {
   try {
-    if (req.method === 'GET') {
+    if (req.method === "GET") {
       const allUsers = await prisma.user.findMany({
         include: {
           profile: true,
@@ -18,7 +17,7 @@ export default async (req: NextApiRequest, res: NextApiResponse<Data>) => {
       });
 
       res.status(200).json({ users: allUsers });
-    } else if (req.method === 'POST') {
+    } else if (req.method === "POST") {
       await prisma.user.create({
         data: {
           name: req.body.name,
@@ -31,10 +30,10 @@ export default async (req: NextApiRequest, res: NextApiResponse<Data>) => {
         },
       });
 
-      res.status(200).json({ message: 'OK' });
+      res.status(200).json({ message: "OK" });
     }
   } catch (err) {
-    console.error('error', err);
+    console.error("error", err);
     res.status(500).json({ message: err.message });
   } finally {
     await prisma.$disconnect();
