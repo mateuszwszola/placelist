@@ -1,47 +1,40 @@
-import type { NextApiRequest, NextApiResponse } from "next";
-import prisma from "../../lib/prisma";
+import type { NextApiRequest, NextApiResponse } from 'next';
+import prisma from '../../lib/prisma';
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   const { method } = req;
 
-  switch (method) {
-    case "GET":
-      try {
+  try {
+    switch (method) {
+      case 'GET':
         const reviews = await prisma.review.findMany();
         res.json({ reviews });
-      } catch (err) {
-        console.log("An error has occured: ", err.message);
-      }
-      break;
-    case "POST":
-      try {
-        const { authorId, comment, cost, safety, fun, city, country } = req.body;
+        break;
+      case 'POST':
+        const { authorId, placeId, comment, cost, safety, fun } = req.body;
 
-        const result = await prisma.review.create({
+        const review = await prisma.review.create({
           data: {
             comment,
-            cost,
-            safety,
-            fun,
+            cost: Number(cost),
+            safety: Number(safety),
+            fun: Number(fun),
             author: {
-              connect: { id: authorId },
+              connect: { id: Number(authorId) }
             },
             place: {
-              create: {
-                city,
-                country,
-              },
-            },
-          },
+              connect: { id: Number(placeId) }
+            }
+          }
         });
 
-        res.json({ result });
-      } catch (err) {
-        console.log("An error has occured: ", err.message);
-      }
-      break;
-    default:
-      res.setHeader("Allow", ["GET", "POST"]);
-      res.status(405).end(`Method ${method} Not Allowed`);
+        res.json({ review });
+        break;
+      default:
+        res.setHeader('Allow', ['GET', 'POST']);
+        res.status(405).end(`Method ${method} Not Allowed`);
+    }
+  } catch (err) {
+    console.log('An error has occured: ', err.message);
   }
 }

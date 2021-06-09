@@ -11,11 +11,11 @@ generator client {
 }
 
 model Place {
-  id            Int      @id @default(autoincrement())
-  city          String   @db.VarChar(255)
-  country       String   @db.VarChar(255)
-  photoUrl      String?   @db.VarChar(255)
-  reviews       Review[]
+  id       Int      @id @default(autoincrement())
+  city     String   @db.VarChar(255)
+  country  String   @db.VarChar(255)
+  photoUrl String?  @db.VarChar(255)
+  reviews  Review[]
 }
 
 model Review {
@@ -24,8 +24,8 @@ model Review {
   authorId  Int
   place     Place    @relation(fields: [placeId], references: [id])
   placeId   Int
-  comment   String?   @db.VarChar(255)
-  cost      Int      
+  comment   String?  @db.VarChar(255)
+  cost      Int
   safety    Int
   fun       Int
   createdAt DateTime @default(now())
@@ -33,11 +33,11 @@ model Review {
 }
 
 model Profile {
-  id     Int     @id @default(autoincrement())
-  bio    String?
+  id        Int     @id @default(autoincrement())
+  bio       String?
   avatarUrl String? @db.VarChar(255)
-  user   User    @relation(fields: [userId], references: [id])
-  userId Int     @unique
+  user      User    @relation(fields: [userId], references: [id])
+  userId    Int     @unique
 }
 
 model User {
@@ -45,7 +45,5 @@ model User {
   email   String   @unique
   name    String?
   profile Profile?
-  reviews  Review[]
+  reviews Review[]
 }
-
-

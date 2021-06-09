@@ -1,8 +1,42 @@
+import { Place } from '.prisma/client';
 import Head from 'next/head';
 import Image from 'next/image';
-import styles from '../styles/Home.module.css';
+import * as React from 'react';
+import { useMutation, useQuery } from 'react-query';
+// import fetcher from '../utils/fetcher';
+
+type Error = {
+  message?: string;
+};
 
 export default function Home() {
+  const formRef = React.useRef();
+  const {
+    isLoading,
+    error,
+    data: places,
+  } = useQuery<Place[], Error>('places', () =>
+    fetch('/api/places').then((res) => res.json().then((data) => data.places))
+  );
+  // const addPlaceMutation = useMutation((newPlace: Place) =>
+  //   fetcher('/api/place', { body: newPlace })
+  // );
+
+  if (isLoading) {
+    return 'Loading...';
+  }
+
+  if (error) {
+    return 'An error has occured: ' + error.message;
+  }
+
+  // const handleSubmit = (e: React.SyntheticEvent) => {
+  //   e.preventDefault();
+  //   const formData = new FormData(formRef.current);
+  //   const values: { city: string; country: string } = Object.fromEntries(formData.entries());
+  //   addPlaceMutation.mutate({ ...values });
+  // };
+
   return (
     <div className="min-h-screen px-2 flex flex-col justify-center align-center h-screen">
       <Head>
@@ -12,37 +46,46 @@ export default function Home() {
       </Head>
 
       <main className="py-20 flex-1 flex flex-col justify-center items-center">
-        <h1 className={styles.title}>Best places to visit</h1>
+        <h1 className="text-6xl">Best places to visit</h1>
 
-        <button>Join Placelist</button>
+        <button className="py-2 px-4 bg-blue-400 text-white rounded mt-6 uppercase tracking-wider font-medium hover:bg-blue-500 active:bg-blue-500">
+          Join Placelist
+        </button>
 
-        <div className={styles.grid}>
-          <a href="#" className={styles.card}>
-            <h2>Warsaw</h2>
-            <p>Poland</p>
-          </a>
+        <div>
+          <h2>Add new place</h2>
+          <form ref={formRef} onSubmit={() => {}} className="mt-4 flex flex-col">
+            <label>
+              City:
+              <input className="border border-gray-400" type="text" name="city" id="city" />
+            </label>
+            <label>
+              Country:
+              <input className="border border-gray-400" type="text" name="country" id="country" />
+            </label>
+            <button className="bg-blue-400 text-white px-4 py-2 mt-2" type="submit">
+              Add place
+            </button>
+          </form>
+        </div>
 
-          <a href="#" className={styles.card}>
-            <h2>New York City</h2>
-            <p>United States</p>
-          </a>
-
-          <a href="#" className={styles.card}>
-            <h2>London</h2>
-            <p>United Kingdom</p>
-          </a>
-
-          <a href="#" className={styles.card}>
-            <h2>Zagreb</h2>
-            <p>Croatia</p>
-          </a>
+        <div className="flex items-center justify-center flex-wrap mt-8 max-w-xl mx-auto">
+          {places?.map((place) => (
+            <a
+              href="#"
+              className="m-2 p-4 text-left no-underline border border-blue-100 rounded-lg w-1/2"
+            >
+              <h2>{place.city}</h2>
+              <p>{place.country}</p>
+            </a>
+          ))}
         </div>
       </main>
 
-      <footer className="w-full py-8 border-t border-gray-200 flex justify-center align-center">
-        <a href="#">
+      <footer className="w-full py-4 border-t border-gray-200 flex justify-center align-center">
+        <a href="#" className="flex items-center">
           Powered by{' '}
-          <span className={styles.logo}>
+          <span className="ml-2">
             <Image src="/logo.svg" width={36} height={36} />
           </span>
         </a>
