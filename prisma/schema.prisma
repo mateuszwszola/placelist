@@ -11,19 +11,21 @@ generator client {
 }
 
 model Place {
-  id       Int      @id @default(autoincrement())
   city     String   @db.VarChar(255)
   country  String   @db.VarChar(255)
   photoUrl String?  @db.VarChar(255)
   reviews  Review[]
+
+  @@id([city, country])
 }
 
 model Review {
   id        Int      @id @default(autoincrement())
   author    User     @relation(fields: [authorId], references: [id])
   authorId  Int
-  place     Place    @relation(fields: [placeId], references: [id])
-  placeId   Int
+  place     Place    @relation(fields: [placeCity, placeCountry], references: [city, country])
+  placeCity     String   @db.VarChar(255)
+  placeCountry  String   @db.VarChar(255)
   comment   String?  @db.VarChar(255)
   cost      Int
   safety    Int

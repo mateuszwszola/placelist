@@ -1,3 +1,4 @@
+import { pick } from 'lodash';
 import type { NextApiRequest, NextApiResponse } from 'next';
 import prisma from '../../lib/prisma';
 
@@ -7,26 +8,38 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   try {
     switch (method) {
       case 'GET':
-        const reviews = await prisma.review.findMany();
+        // TODO: Add query params
+        const reviews = await prisma.review.findMany({ take: 100 });
         res.json({ reviews });
         break;
       case 'POST':
-        const { authorId, placeId, comment, cost, safety, fun } = req.body;
+        // TODO: get authorId from a user token
+        const { authorId } = req.body;
+        // TODO: Validate city and country
 
-        const review = await prisma.review.create({
-          data: {
-            comment,
-            cost: Number(cost),
-            safety: Number(safety),
-            fun: Number(fun),
-            author: {
-              connect: { id: Number(authorId) }
+        const placeValues = pick(req.body, ['city', 'country', 'photoUrl']);
+        const reviewValues = pick(req.body, ['comment', 'cost', 'safety', 'fun']);
+
+        const [review] = await Promise.all([
+          prisma.review.create({
+            data: {
+              ...reviewValues,
+              author: {
+                connect: { id: authorId },
+              },
+              place: {
+                connect: { city_country: pick(placeValues, ['city', 'country']) },
+              },
             },
-            place: {
-              connect: { id: Number(placeId) }
-            }
-          }
-        });
+          }),
+          prisma.place.upsert({
+            where: {
+              city_country: pick(placeValues, ['city', 'country']),
+            },
+            create: placeValues,
+            update: pick(placeValues, ['photoUrl']),
+          }),
+        ]);
 
         res.json({ review });
         break;

@@ -1,16 +1,15 @@
 import { Place } from '.prisma/client';
 import Head from 'next/head';
 import Image from 'next/image';
+import Link from 'next/link';
 import * as React from 'react';
-import { useMutation, useQuery } from 'react-query';
-// import fetcher from '../utils/fetcher';
+import { useQuery } from 'react-query';
 
 type Error = {
   message?: string;
 };
 
 export default function Home() {
-  const formRef = React.useRef();
   const {
     isLoading,
     error,
@@ -18,24 +17,14 @@ export default function Home() {
   } = useQuery<Place[], Error>('places', () =>
     fetch('/api/places').then((res) => res.json().then((data) => data.places))
   );
-  // const addPlaceMutation = useMutation((newPlace: Place) =>
-  //   fetcher('/api/place', { body: newPlace })
-  // );
 
   if (isLoading) {
-    return 'Loading...';
+    return <p>Loading...</p>;
   }
 
   if (error) {
     return 'An error has occured: ' + error.message;
   }
-
-  // const handleSubmit = (e: React.SyntheticEvent) => {
-  //   e.preventDefault();
-  //   const formData = new FormData(formRef.current);
-  //   const values: { city: string; country: string } = Object.fromEntries(formData.entries());
-  //   addPlaceMutation.mutate({ ...values });
-  // };
 
   return (
     <div className="min-h-screen px-2 flex flex-col justify-center align-center h-screen">
@@ -48,28 +37,15 @@ export default function Home() {
       <main className="py-20 flex-1 flex flex-col justify-center items-center">
         <h1 className="text-6xl">Best places to visit</h1>
 
-        <button className="py-2 px-4 bg-blue-400 text-white rounded mt-6 uppercase tracking-wider font-medium hover:bg-blue-500 active:bg-blue-500">
-          Join Placelist
-        </button>
-
-        <div>
-          <h2>Add new place</h2>
-          <form ref={formRef} onSubmit={() => {}} className="mt-4 flex flex-col">
-            <label>
-              City:
-              <input className="border border-gray-400" type="text" name="city" id="city" />
-            </label>
-            <label>
-              Country:
-              <input className="border border-gray-400" type="text" name="country" id="country" />
-            </label>
-            <button className="bg-blue-400 text-white px-4 py-2 mt-2" type="submit">
-              Add place
-            </button>
-          </form>
-        </div>
+        {/* TODO: Implement log in */}
+        <Link href="/dashboard">
+          <a className="py-2 px-4 bg-blue-400 text-white rounded mt-6 uppercase tracking-wider font-medium hover:bg-blue-500 active:bg-blue-500">
+            Join Placelist
+          </a>
+        </Link>
 
         <div className="flex items-center justify-center flex-wrap mt-8 max-w-xl mx-auto">
+          {places?.length === 0 && <p>No places found</p>}
           {places?.map((place) => (
             <a
               href="#"
