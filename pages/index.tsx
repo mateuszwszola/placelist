@@ -4,12 +4,14 @@ import Image from 'next/image';
 import Link from 'next/link';
 import * as React from 'react';
 import { useQuery } from 'react-query';
+import { signIn, signOut, useSession } from 'next-auth/client';
 
 type Error = {
   message?: string;
 };
 
 export default function Home() {
+  const [session, loading] = useSession();
   const {
     isLoading,
     error,
@@ -35,6 +37,16 @@ export default function Home() {
       </Head>
 
       <main className="py-20 flex-1 flex flex-col justify-center items-center">
+        {session ? (
+          <>
+            <p>You are authenticated! Hello {session.user?.name || 'user'}</p>
+            <button onClick={() => signOut()}>Sign out</button>
+          </>
+        ) : (
+          <>
+            <button onClick={() => signIn()}>Sign in</button>
+          </>
+        )}
         <h1 className="text-6xl">Best places to visit</h1>
 
         {/* TODO: Implement log in */}
