@@ -6,10 +6,6 @@ import * as React from 'react';
 import { useQuery } from 'react-query';
 import { signIn, signOut, useSession } from 'next-auth/client';
 
-type Error = {
-  message?: string;
-};
-
 export default function Home() {
   const [session, loading] = useSession();
   const {
@@ -20,7 +16,7 @@ export default function Home() {
     fetch('/api/places').then((res) => res.json().then((data) => data.places))
   );
 
-  if (isLoading) {
+  if (loading) {
     return <p>Loading...</p>;
   }
 
@@ -37,36 +33,45 @@ export default function Home() {
       </Head>
 
       <main className="py-20 flex-1 flex flex-col justify-center items-center">
+        <h1 className="text-6xl">Best places to visit</h1>
         {session ? (
           <>
             <p>You are authenticated! Hello {session.user?.name || 'user'}</p>
+            <Link href="/dashboard">
+              <a>Go to dashboard</a>
+            </Link>
             <button onClick={() => signOut()}>Sign out</button>
           </>
         ) : (
           <>
-            <button onClick={() => signIn()}>Sign in</button>
+            <button
+              className="py-2 px-4 bg-blue-400 text-white rounded mt-6 uppercase tracking-wider font-medium hover:bg-blue-500 active:bg-blue-500"
+              onClick={() => signIn()}
+            >
+              Join Placelist
+            </button>
           </>
         )}
-        <h1 className="text-6xl">Best places to visit</h1>
-
-        {/* TODO: Implement log in */}
-        <Link href="/dashboard">
-          <a className="py-2 px-4 bg-blue-400 text-white rounded mt-6 uppercase tracking-wider font-medium hover:bg-blue-500 active:bg-blue-500">
-            Join Placelist
-          </a>
-        </Link>
 
         <div className="flex items-center justify-center flex-wrap mt-8 max-w-xl mx-auto">
-          {places?.length === 0 && <p>No places found</p>}
-          {places?.map((place) => (
-            <a
-              href="#"
-              className="m-2 p-4 text-left no-underline border border-blue-100 rounded-lg w-1/2"
-            >
-              <h2>{place.city}</h2>
-              <p>{place.country}</p>
-            </a>
-          ))}
+          {isLoading ? (
+            <p>Loading...</p>
+          ) : places?.length === 0 ? (
+            <p>No places found</p>
+          ) : (
+            <>
+              {places?.map((place) => (
+                <a
+                  key={place.id}
+                  href="#"
+                  className="m-2 p-4 text-left no-underline border border-blue-100 rounded-lg w-1/2"
+                >
+                  <h2>{place.city}</h2>
+                  <p>{place.country}</p>
+                </a>
+              ))}
+            </>
+          )}
         </div>
       </main>
 
