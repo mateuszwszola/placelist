@@ -1,24 +1,45 @@
+import { Review } from '@prisma/client';
+import { signIn, useSession } from 'next-auth/client';
+import { useRouter } from 'next/router';
 import * as React from 'react';
+import { useMutation } from 'react-query';
+import axios, { AxiosError } from 'axios';
+import DisplayError from 'components/DisplayError';
 
-export default function Dashboard() {
-  // const addPlaceMutation = useMutation((newPlace: Place) =>
-  //   fetcher('/api/place', { body: newPlace })
-  // );
+const AddReview = (): JSX.Element => {
+  const formRef = React.useRef<HTMLFormElement>(null);
+  const router = useRouter();
+  const addReviewMutation = useMutation<Review, AxiosError, Partial<Review>>((newReview) =>
+    axios
+      .post<Review, { review: Review }>('/api/reviews', newReview)
+      .then((response) => response.review)
+  );
 
-  // const handleSubmit = (e: React.SyntheticEvent) => {
-  //   e.preventDefault();
-  //   const formData = new FormData(formRef.current);
-  //   const values: { city: string; country: string } = Object.fromEntries(formData.entries());
-  //   addPlaceMutation.mutate({ ...values });
-  // };
+  const handleSubmit = (e: React.SyntheticEvent): void => {
+    e.preventDefault();
+    if (!formRef.current) return;
+    const formData = new FormData(formRef.current);
+    const values = Object.fromEntries(formData.entries());
+    addReviewMutation.mutate(values, {
+      onSuccess: () => {
+        router.push('/'); // TODO: Redirect to a place page
+      },
+    });
+  };
 
   return (
-    <div>
-      <h1>Dashboard</h1>
-
-      <div>
-        <h2>Add review</h2>
-        <form onSubmit={() => {}} className="mt-4 flex flex-col">
+    <div className="max-w-xl mx-auto mt-8">
+      <h2 className="text-xl text-center">Add review</h2>
+      {addReviewMutation.error && (
+        <div role="alert" className="text-center flex flex-col">
+          <p className="text-red-500">
+            <DisplayError error={addReviewMutation.error} />
+          </p>
+          <button onClick={() => addReviewMutation.reset()}>Reset</button>
+        </div>
+      )}
+      <form ref={formRef} onSubmit={handleSubmit} className="mt-4">
+        <fieldset className="flex flex-col" disabled={addReviewMutation.isLoading}>
           <label>
             Country:
             <select name="country" id="country">
@@ -48,13 +69,35 @@ export default function Dashboard() {
             Fun:
             <input type="range" min={0} max={10} name="fun" id="fun" />
           </label>
-          <textarea name="comment" id="comment" />
+          <textarea className="border border-gray-400" name="comment" id="comment" />
 
           <button className="bg-blue-400 text-white px-4 py-2 mt-2" type="submit">
-            Add review
+            {addReviewMutation.isLoading ? 'Loading...' : 'Add review'}
           </button>
-        </form>
-      </div>
+        </fieldset>
+      </form>
     </div>
   );
-}
+};
+
+const Dashboard = (): React.ReactNode => {
+  const [session, loading] = useSession();
+
+  if (loading) {
+    return <p>Loading...</p>;
+  }
+
+  if (!session?.user) {
+    return signIn();
+  }
+
+  return (
+    <div>
+      <h1>Dashboard</h1>
+
+      <AddReview />
+    </div>
+  );
+};
+
+export default Dashboard;

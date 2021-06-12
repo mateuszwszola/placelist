@@ -1,53 +1,59 @@
-import { pick } from 'lodash';
 import type { NextApiRequest, NextApiResponse } from 'next';
+import { getSession } from 'next-auth/client';
 import prisma from '../../lib/prisma';
 
-export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+export default async function handler(req: NextApiRequest, res: NextApiResponse): Promise<void> {
   const { method } = req;
 
   try {
-    switch (method) {
-      case 'GET':
-        // TODO: Add query params
-        const reviews = await prisma.review.findMany({ take: 100 });
-        res.json({ reviews });
-        break;
-      case 'POST':
-        // TODO: get authorId from a user token
-        const { authorId } = req.body;
-        // TODO: Validate city and country
+    if (req.method === 'GET') {
+      const session = await getSession({ req });
+      console.log('api session', session);
+      const reviews = await prisma.review.findMany({ take: 100 });
+      res.json({ reviews });
+    } else if (req.method === 'POST') {
+      const session = await getSession({ req });
 
-        const placeValues = pick(req.body, ['city', 'country', 'photoUrl']);
-        const reviewValues = pick(req.body, ['comment', 'cost', 'safety', 'fun']);
+      if (!session?.user?.email) {
+        return res.status(401).json({ message: 'You are not authorized' });
+      }
 
-        const [review] = await Promise.all([
-          prisma.review.create({
-            data: {
-              ...reviewValues,
-              author: {
-                connect: { id: authorId },
-              },
-              place: {
-                connect: { city_country: pick(placeValues, ['city', 'country']) },
-              },
+      const { email } = session.user;
+
+      // TODO: Validate city and country
+      const { city, country, comment, cost, safety, fun } = req.body;
+
+      const [review] = await Promise.all([
+        prisma.review.create({
+          data: {
+            comment,
+            cost: Number(cost),
+            safety: Number(safety),
+            fun: Number(fun),
+            author: {
+              connect: { email },
             },
-          }),
-          prisma.place.upsert({
-            where: {
-              city_country: pick(placeValues, ['city', 'country']),
+            place: {
+              connect: { city_country: { city, country } },
             },
-            create: placeValues,
-            update: pick(placeValues, ['photoUrl']),
-          }),
-        ]);
+          },
+        }),
+        prisma.place.upsert({
+          where: {
+            city_country: { city, country },
+          },
+          create: { city, country },
+          update: {}, // TODO: get photo url
+        }),
+      ]);
 
-        res.json({ review });
-        break;
-      default:
-        res.setHeader('Allow', ['GET', 'POST']);
-        res.status(405).end(`Method ${method} Not Allowed`);
+      res.json({ review });
+    } else {
+      res.setHeader('Allow', ['GET', 'POST']);
+      res.status(405).json({ message: `Method ${method} Not Allowed` });
     }
   } catch (err) {
     console.log('An error has occured: ', err.message);
+    res.status(500).json({ message: `An error has occured: ${err.message}` });
   }
 }

@@ -3,11 +3,11 @@ import type { AppProps } from 'next/app';
 import { QueryClient, QueryClientProvider } from 'react-query';
 import { Provider as NextAuthProvider } from 'next-auth/client';
 import { ErrorBoundary } from 'react-error-boundary';
-import ErrorFallback from '../components/ErrorFallback';
+import ErrorFallback from 'components/ErrorFallback';
 
 const queryClient = new QueryClient();
 
-function MyApp({ Component, pageProps }: AppProps) {
+const MyApp = ({ Component, pageProps }: AppProps): JSX.Element => {
   return (
     <ErrorBoundary FallbackComponent={ErrorFallback}>
       <QueryClientProvider client={queryClient}>
@@ -17,5 +17,6 @@ function MyApp({ Component, pageProps }: AppProps) {
       </QueryClientProvider>
     </ErrorBoundary>
   );
-}
+};
+
 export default MyApp;
