@@ -7,9 +7,18 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
   try {
     if (req.method === 'GET') {
-      const session = await getSession({ req });
-      console.log('api session', session);
-      const reviews = await prisma.review.findMany({ take: 100 });
+      let { country, city } = req.query;
+
+      if (Array.isArray(country)) country = country[0];
+      if (Array.isArray(city)) city = city[0];
+
+      const reviews = await prisma.review.findMany({
+        take: 100,
+        where: {
+          place: { city, country },
+        },
+      });
+
       res.json({ reviews });
     } else if (req.method === 'POST') {
       const session = await getSession({ req });
@@ -21,31 +30,31 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       const { email } = session.user;
 
       // TODO: Validate city and country
+      // TODO: get photo url
       const { city, country, comment, cost, safety, fun } = req.body;
 
-      const [review] = await Promise.all([
-        prisma.review.create({
-          data: {
-            comment,
-            cost: Number(cost),
-            safety: Number(safety),
-            fun: Number(fun),
-            author: {
-              connect: { email },
-            },
-            place: {
-              connect: { city_country: { city, country } },
-            },
+      await prisma.place.upsert({
+        where: {
+          city_country: { city, country },
+        },
+        create: { city, country },
+        update: {},
+      });
+
+      const review = await prisma.review.create({
+        data: {
+          comment,
+          cost: Number(cost),
+          safety: Number(safety),
+          fun: Number(fun),
+          author: {
+            connect: { email },
           },
-        }),
-        prisma.place.upsert({
-          where: {
-            city_country: { city, country },
+          place: {
+            connect: { city_country: { city, country } },
           },
-          create: { city, country },
-          update: {}, // TODO: get photo url
-        }),
-      ]);
+        },
+      });
 
       res.json({ review });
     } else {

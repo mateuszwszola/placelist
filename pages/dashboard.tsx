@@ -1,5 +1,6 @@
 import { Review } from '@prisma/client';
 import { signIn, useSession } from 'next-auth/client';
+import Link from 'next/link';
 import { useRouter } from 'next/router';
 import * as React from 'react';
 import { useMutation } from 'react-query';
@@ -22,20 +23,20 @@ const AddReview = (): JSX.Element => {
     const values = Object.fromEntries(formData.entries());
     addReviewMutation.mutate(values, {
       onSuccess: () => {
-        router.push('/'); // TODO: Redirect to a place page
+        router.push(`/p/${values.country}/${values.city}`);
       },
     });
   };
 
   return (
     <div className="max-w-xl mx-auto mt-8">
+      <Link href="/">Go to homepage</Link>
       <h2 className="text-xl text-center">Add review</h2>
       {addReviewMutation.error && (
         <div role="alert" className="text-center flex flex-col">
           <p className="text-red-500">
             <DisplayError error={addReviewMutation.error} />
           </p>
-          <button onClick={() => addReviewMutation.reset()}>Reset</button>
         </div>
       )}
       <form ref={formRef} onSubmit={handleSubmit} className="mt-4">

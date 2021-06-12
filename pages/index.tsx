@@ -6,6 +6,7 @@ import * as React from 'react';
 import { useQuery } from 'react-query';
 import { signIn, signOut, useSession } from 'next-auth/client';
 import { useErrorHandler } from 'react-error-boundary';
+import axios from 'axios';
 
 const Home = (): JSX.Element => {
   const [session, loading] = useSession();
@@ -14,7 +15,7 @@ const Home = (): JSX.Element => {
     error,
     data: places,
   } = useQuery<Place[], Error>('places', () =>
-    fetch('/api/places').then((res) => res.json().then((data) => data.places))
+    axios.get('/api/places').then((response) => response.data.places)
   );
   useErrorHandler(error);
 
@@ -62,14 +63,12 @@ const Home = (): JSX.Element => {
           ) : (
             <>
               {places?.map((place) => (
-                <a
-                  key={place.id}
-                  href="#"
-                  className="m-2 p-4 text-left no-underline border border-blue-100 rounded-lg w-1/2"
-                >
-                  <h2>{place.city}</h2>
-                  <p>{place.country}</p>
-                </a>
+                <Link key={place.id} href={`/p/${place.country}/${place.city}`}>
+                  <a className="m-2 p-4 text-left no-underline border border-blue-100 rounded-lg w-1/2">
+                    <h2>{place.city}</h2>
+                    <p>{place.country}</p>
+                  </a>
+                </Link>
               ))}
             </>
           )}

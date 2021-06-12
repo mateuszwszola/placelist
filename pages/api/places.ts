@@ -7,11 +7,12 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   switch (method) {
     case 'GET':
       try {
+        // TODO: Add filters and get statistics
         const places = await prisma.place.findMany();
         res.json({ places });
       } catch (err) {
         console.log('An error has occured: ', err.message);
-        res.status(500).json({ message: 'An error has occured' });
+        res.status(500).json({ message: 'There was a problem fetching places' });
       }
       break;
     default:
