@@ -1,11 +1,11 @@
 import { Review } from '@prisma/client';
-import { signIn, useSession } from 'next-auth/client';
-import Link from 'next/link';
+import { useSession } from 'next-auth/client';
 import { useRouter } from 'next/router';
 import * as React from 'react';
 import { useMutation } from 'react-query';
 import axios, { AxiosError } from 'axios';
 import DisplayError from 'components/DisplayError';
+import Layout from 'components/Layout';
 
 const AddReview = (): JSX.Element => {
   const formRef = React.useRef<HTMLFormElement>(null);
@@ -30,7 +30,6 @@ const AddReview = (): JSX.Element => {
 
   return (
     <div className="max-w-xl mx-auto mt-8">
-      <Link href="/">Go to homepage</Link>
       <h2 className="text-xl text-center">Add review</h2>
       {addReviewMutation.error && (
         <div role="alert" className="text-center flex flex-col">
@@ -89,15 +88,19 @@ const Dashboard = (): React.ReactNode => {
   }
 
   if (!session?.user) {
-    return signIn();
+    return (
+      <Layout>
+        <p>You are not authenticated</p>
+      </Layout>
+    );
   }
 
   return (
-    <div>
-      <h1>Dashboard</h1>
+    <Layout>
+      <h1 className="text-2xl ml-4">Dashboard</h1>
 
       <AddReview />
-    </div>
+    </Layout>
   );
 };
 

@@ -17,6 +17,11 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         where: {
           place: { city, country },
         },
+        include: {
+          author: {
+            select: { name: true, image: true },
+          },
+        },
       });
 
       res.json({ reviews });
