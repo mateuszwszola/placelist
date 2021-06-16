@@ -56,7 +56,7 @@ const AddReview = (): JSX.Element => {
 
   return (
     <div className="max-w-xl mx-auto mt-8">
-      <h2 className="text-xl text-center">Add review</h2>
+      <h2 className="text-2xl text-center">Add review</h2>
       {addReviewMutation.error && (
         <div role="alert" className="text-center flex flex-col">
           <p className="text-red-500">
@@ -65,9 +65,9 @@ const AddReview = (): JSX.Element => {
         </div>
       )}
       <form ref={formRef} onSubmit={handleSubmit} className="mt-4">
-        <fieldset className="flex flex-col" disabled={addReviewMutation.isLoading}>
+        <fieldset className="flex flex-col space-y-4" disabled={addReviewMutation.isLoading}>
           <div>
-            <h4>Choose location</h4>
+            <h4 className="text-xs uppercase font-semibold text-gray-500 mb-1">Choose location</h4>
             <Combobox
               aria-labelledby="Cities"
               onSelect={(value) => {
@@ -75,8 +75,9 @@ const AddReview = (): JSX.Element => {
               }}
             >
               <ComboboxInput
+                required
                 autoComplete="off"
-                className="w-80"
+                className="w-full border border-gray-200 px-2 py-1 rounded-sm"
                 onChange={handleCitySearchTermChange}
                 name="location"
                 id="location"
@@ -97,21 +98,33 @@ const AddReview = (): JSX.Element => {
               )}
             </Combobox>
           </div>
-          <label>
-            Cost:
-            <input type="range" min={0} max={10} name="cost" id="cost" />
-          </label>
-          <label>
-            Safety:
-            <input type="range" min={0} max={10} name="safety" id="safety" />
-          </label>
-          <label>
-            Fun:
-            <input type="range" min={0} max={10} name="fun" id="fun" />
-          </label>
-          <textarea className="border border-gray-400" name="comment" id="comment" />
+          <fieldset className="flex flex-col">
+            <legend className="text-xs uppercase font-semibold text-gray-500 mb-1">Stats</legend>
+            <label>
+              Cost:
+              <input type="range" min={0} max={10} name="cost" id="cost" />
+            </label>
+            <label>
+              Safety:
+              <input type="range" min={0} max={10} name="safety" id="safety" />
+            </label>
+            <label>
+              Fun:
+              <input type="range" min={0} max={10} name="fun" id="fun" />
+            </label>
+          </fieldset>
 
-          <button className="bg-blue-400 text-white px-4 py-2 mt-2" type="submit">
+          <fieldset className="flex flex-col">
+            <legend className="text-xs uppercase font-semibold text-gray-500 mb-1">Comment</legend>
+            <textarea
+              className="p-2 border border-gray-200 rounded-sm"
+              name="comment"
+              id="comment"
+              placeholder="Add a comment"
+            />
+          </fieldset>
+
+          <button className="bg-blue-400 text-white px-4 py-2 mt-2 rounded-sm" type="submit">
             {addReviewMutation.isLoading ? 'Loading...' : 'Add review'}
           </button>
         </fieldset>

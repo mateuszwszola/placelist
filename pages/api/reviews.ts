@@ -35,6 +35,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
             select: { name: true, image: true },
           },
         },
+        orderBy: {
+          updatedAt: 'desc',
+        },
       };
 
       if (placeId) {
