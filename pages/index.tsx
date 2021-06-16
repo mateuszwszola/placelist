@@ -58,7 +58,7 @@ const Home = (): JSX.Element => {
             ) : (
               <>
                 {places?.map((place) => (
-                  <Link key={place.id} href={`/p/${place.country}/${place.city}`}>
+                  <Link key={place.id} href={`/place/${place.id}`}>
                     <a className="m-2 p-4 text-left no-underline border border-blue-100 rounded-lg w-1/2">
                       <h2>{place.city}</h2>
                       <p>{place.country}</p>

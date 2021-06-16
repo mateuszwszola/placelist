@@ -10,28 +10,31 @@ type ReviewWithAuthor = Review & { author: Pick<User, 'name' | 'image'> };
 
 const PlacePage = (): JSX.Element => {
   const router = useRouter();
-  const { country, city } = router.query;
+  const { id } = router.query;
 
   const {
     isLoading,
     error,
     data: reviews,
-  } = useQuery<ReviewWithAuthor[], AxiosError>(['reviews', { country, city }], () => {
-    return axios
-      .get<{ reviews: ReviewWithAuthor[] }>('/api/reviews', {
-        params: {
-          country,
-          city,
-        },
-      })
-      .then((response) => response.data.reviews);
-  });
+  } = useQuery<ReviewWithAuthor[], AxiosError>(
+    ['reviews', { placeId: id }],
+    () => {
+      return axios
+        .get<{ reviews: ReviewWithAuthor[] }>('/api/reviews', {
+          params: {
+            placeId: id,
+          },
+        })
+        .then((response) => response.data.reviews);
+    },
+    {
+      enabled: !!id,
+    }
+  );
 
   return (
     <Layout>
-      <h1 className="text-2xl ml-4">
-        {city}, {country}
-      </h1>
+      <h1 className="text-2xl ml-4">Place Id: {id}</h1>
 
       <main>
         <div>

@@ -14,74 +14,19 @@ import {
   ComboboxOption,
 } from '@reach/combobox';
 import '@reach/combobox/styles.css';
-import { useThrottle } from 'react-use';
-
-const CITIES_API_URL = 'https://api.teleport.org/api/cities';
-
-type CitySearchResult = {
-  ['matching_full_name']: string;
-};
-
-type CitySearchResponseData = {
-  ['_embedded']: {
-    ['city:search-results']: CitySearchResult[];
-  };
-};
-
-type City = {
-  fullName: string;
-};
-
-const formatResponseData = (data: CitySearchResponseData): City[] => {
-  return data['_embedded']['city:search-results'].map((item: CitySearchResult) => ({
-    fullName: item['matching_full_name'],
-  }));
-};
-
-const cache: { [key: string]: City[] } = {};
-
-function fetchCities(value: string): Promise<City[]> {
-  if (cache[value]) {
-    return Promise.resolve(cache[value]);
-  }
-  return axios.get(`${CITIES_API_URL}/?search=${value}&limit=10`).then((res) => {
-    const results = formatResponseData(res.data);
-    cache[value] = results;
-    return results;
-  });
-}
-
-function useCitySearch(searchTerm: string): City[] {
-  const throttledSearchTerm = useThrottle(searchTerm);
-  const [cities, setCities] = React.useState<City[]>([]);
-
-  React.useEffect(() => {
-    if (throttledSearchTerm.trim() === '') return;
-
-    let isMounted = true;
-
-    fetchCities(throttledSearchTerm.toLowerCase()).then((cities) => {
-      if (isMounted) setCities(cities);
-    });
-
-    return () => {
-      isMounted = false;
-    };
-  }, [throttledSearchTerm]);
-
-  return cities;
-}
+import useCitySearch from 'components/useCitySearch';
 
 const AddReview = (): JSX.Element => {
   const formRef = React.useRef<HTMLFormElement>(null);
   const router = useRouter();
-  const addReviewMutation = useMutation<Review, AxiosError, Partial<Review>>((newReview) =>
-    axios
-      .post<Review, { review: Review }>('/api/reviews', newReview)
-      .then((response) => response.review)
-  );
   const [citySearchTerm, setCitySearchTerm] = React.useState('');
   const cities = useCitySearch(citySearchTerm);
+  const selectedCityValue = React.useRef('');
+  const addReviewMutation = useMutation<Review, AxiosError, Partial<Review>>((newReview) =>
+    axios
+      .post<{ review: Review }>('/api/reviews', newReview)
+      .then((response) => response.data.review)
+  );
 
   const handleCitySearchTermChange: React.ChangeEventHandler<HTMLInputElement> = (e) => {
     setCitySearchTerm(e.target.value);
@@ -91,10 +36,20 @@ const AddReview = (): JSX.Element => {
     e.preventDefault();
     if (!formRef.current) return;
     const formData = new FormData(formRef.current);
+    // Find selected city
+    const selectedLocation = cities.find(
+      (city) => city.fullName.toLowerCase() === selectedCityValue.current.toLowerCase()
+    );
+
+    if (selectedLocation) {
+      formData.set('locationId', String(selectedLocation.id));
+    }
+
     const values = Object.fromEntries(formData.entries());
+
     addReviewMutation.mutate(values, {
-      onSuccess: () => {
-        router.push(`/p/${values.country}/${values.city}`);
+      onSuccess: (data) => {
+        router.push(`/place/${data.placeId}`);
       },
     });
   };
@@ -112,21 +67,27 @@ const AddReview = (): JSX.Element => {
       <form ref={formRef} onSubmit={handleSubmit} className="mt-4">
         <fieldset className="flex flex-col" disabled={addReviewMutation.isLoading}>
           <div>
-            <h4>City search</h4>
-            <Combobox aria-labelledby="Cities">
+            <h4>Choose location</h4>
+            <Combobox
+              aria-labelledby="Cities"
+              onSelect={(value) => {
+                selectedCityValue.current = value;
+              }}
+            >
               <ComboboxInput
+                autoComplete="off"
                 className="w-80"
                 onChange={handleCitySearchTermChange}
-                name="city"
-                id="city"
-                placeholder="Type a city"
+                name="location"
+                id="location"
+                placeholder="Start typing"
               />
               {cities && (
                 <ComboboxPopover>
                   {cities.length > 0 ? (
                     <ComboboxList>
                       {cities.map((city) => (
-                        <ComboboxOption key={city.fullName} value={city.fullName} />
+                        <ComboboxOption key={city.id} value={city.fullName} />
                       ))}
                     </ComboboxList>
                   ) : (
