@@ -8,11 +8,14 @@
     "start": "next start",
     "type-check": "tsc --project tsconfig.json --pretty --noEmit",
     "lint": "eslint --ext js,jsx,ts,tsx --fix",
-    "prepare": "husky install"
+    "prepare": "husky install",
+    "vercel-build": "prisma migrate deploy && next build",
+    "prisma:generate": "prisma generate",
+    "postinstall": "prisma generate"
   },
   "dependencies": {
-    "@next-auth/prisma-adapter": "^0.4.4-canary.64",
-    "@prisma/client": "^2.24.1",
+    "@next-auth/prisma-adapter": "^0.4.4",
+    "@prisma/client": "^2.25.0",
     "@reach/combobox": "^0.15.1",
     "axios": "^0.21.1",
     "lodash": "^4.17.21",
@@ -40,7 +43,7 @@
     "lint-staged": "^11.0.0",
     "postcss": "^8.3.0",
     "prettier": "^2.3.1",
-    "prisma": "^2.24.1",
+    "prisma": "^2.25.0",
     "tailwindcss": "^2.1.4",
     "typescript": "4.3.2"
   }
