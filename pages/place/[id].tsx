@@ -1,5 +1,6 @@
-import { Review, User } from '@prisma/client';
-import axios, { AxiosError } from 'axios';
+import type { Review, User } from '@prisma/client';
+import axios from 'axios';
+import type { AxiosError } from 'axios';
 import { useRouter } from 'next/router';
 import * as React from 'react';
 import { useQuery } from 'react-query';

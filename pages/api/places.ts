@@ -8,7 +8,10 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     case 'GET':
       try {
         // TODO: Add filters and get statistics
-        const places = await prisma.place.findMany();
+        const places = await prisma.place.findMany({
+          take: 100,
+        });
+
         res.json({ places });
       } catch (err) {
         console.log('An error has occured: ', err.message);
