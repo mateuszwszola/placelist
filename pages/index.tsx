@@ -1,24 +1,28 @@
 import { Place } from '.prisma/client';
 import Head from 'next/head';
+import type { GetStaticProps } from 'next';
 import Image from 'next/image';
 import Link from 'next/link';
 import * as React from 'react';
-import { useQuery } from 'react-query';
 import { signIn, useSession } from 'next-auth/client';
-import { useErrorHandler } from 'react-error-boundary';
-import axios from 'axios';
 import Layout from 'components/Layout';
+import prisma from 'lib/prisma';
 
-const Home = (): JSX.Element => {
+export const getStaticProps: GetStaticProps = async () => {
+  const places = await prisma.place.findMany();
+
+  return {
+    props: { places },
+    revalidate: 1,
+  };
+};
+
+interface Props {
+  places: Place[];
+}
+
+const Home = ({ places }: Props): JSX.Element => {
   const [session, loading] = useSession();
-  const {
-    isLoading,
-    error,
-    data: places,
-  } = useQuery<Place[], Error>('places', () =>
-    axios.get('/api/places').then((response) => response.data.places)
-  );
-  useErrorHandler(error);
 
   return (
     <Layout>
@@ -51,9 +55,7 @@ const Home = (): JSX.Element => {
           ) : null}
 
           <div className="flex items-center justify-center flex-wrap mt-8 max-w-xl mx-auto">
-            {isLoading ? (
-              <p>Loading...</p>
-            ) : places?.length === 0 ? (
+            {places?.length === 0 ? (
               <p>No places found</p>
             ) : (
               <>
