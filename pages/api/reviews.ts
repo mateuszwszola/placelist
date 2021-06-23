@@ -5,7 +5,7 @@ import prisma from '../../lib/prisma';
 import { CITIES_ROOT_API_URL } from 'components/useCitySearch';
 import { Prisma } from '@prisma/client';
 
-type LocationResponse = {
+type TLocationResponse = {
   _links: {
     ['city:admin1_division']: {
       name: string;
@@ -67,11 +67,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       }
 
       // Validate location
-      const locationResponse = await axios.get<LocationResponse>(
+      const locationResponse = await axios.get<TLocationResponse>(
         `${CITIES_ROOT_API_URL}/geonameid:${locationId}`
       );
-
-      // TODO: get location photo url
 
       const { name: city } = locationResponse.data;
       const { name: country } = locationResponse.data['_links']['city:country'];

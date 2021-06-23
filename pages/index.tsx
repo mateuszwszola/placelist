@@ -54,16 +54,40 @@ const Home = ({ places }: Props): JSX.Element => {
             </>
           )}
 
-          <div className="w-full mt-8">
+          <div className="w-full mt-8 text-center">
             {places?.length === 0 ? (
-              <p>No places found</p>
+              <p>There are no places. Be the first one to add!</p>
             ) : (
               <div className="flex flex-wrap justify-center items-center">
                 {places?.map((place) => (
                   <Link key={place.id} href={`/place/${place.id}`}>
                     <a className="m-2 w-full max-w-xs p-4 text-left no-underline border border-blue-100 rounded-lg">
-                      <h2>{place.city}</h2>
-                      <p>{place.country}</p>
+                      <div>
+                        <div className="text-center">
+                          <h3 className="text-xl">{place.city}</h3>
+                          <h4 className="text-lg">{place.country}</h4>
+                        </div>
+                        <div className="mt-4 space-y-1">
+                          <p>
+                            <span role="img" aria-label="bill emoji">
+                              💸
+                            </span>{' '}
+                            Cost {place.averageCost}/10
+                          </p>
+                          <p>
+                            <span role="img" aria-label="helmet emoji">
+                              ⛑
+                            </span>{' '}
+                            Safety {place.averageSafety}/10
+                          </p>
+                          <p>
+                            <span role="img" aria-label="fun emoji">
+                              🤪
+                            </span>{' '}
+                            Fun {place.averageFun}/10
+                          </p>
+                        </div>
+                      </div>
                     </a>
                   </Link>
                 ))}
