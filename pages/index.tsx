@@ -1,4 +1,3 @@
-import { Place } from '.prisma/client';
 import Head from 'next/head';
 import type { GetStaticProps } from 'next';
 import Image from 'next/image';
@@ -6,12 +5,11 @@ import Link from 'next/link';
 import * as React from 'react';
 import { signIn, useSession } from 'next-auth/client';
 import Layout from 'components/Layout';
-import prisma from 'lib/prisma';
+import { getPlacesWithStatistics } from 'lib/db';
+import type { TPlacesWithStats } from 'lib/db';
 
 export const getStaticProps: GetStaticProps = async () => {
-  const places = await prisma.place.findMany({
-    take: 10,
-  });
+  const places = await getPlacesWithStatistics();
 
   return {
     props: { places },
@@ -20,11 +18,13 @@ export const getStaticProps: GetStaticProps = async () => {
 };
 
 interface Props {
-  places: Place[];
+  places: TPlacesWithStats[];
 }
 
 const Home = ({ places }: Props): JSX.Element => {
   const [session, loading] = useSession();
+
+  console.log({ places });
 
   return (
     <Layout>

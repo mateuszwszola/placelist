@@ -12,12 +12,14 @@ generator client {
 
 model Place {
   id       Int      @id @default(autoincrement())
+  geonameId String?
   city     String   @db.VarChar(255)
   country  String   @db.VarChar(255)
+  adminDivision String? @db.VarChar(255)
   photoUrl String?  @db.VarChar(255)
   reviews  Review[]
 
-  @@unique([city, country])
+  @@unique([geonameId])
 }
 
 model Review {

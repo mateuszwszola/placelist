@@ -73,14 +73,15 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
       // TODO: get location photo url
 
-      const city = locationResponse.data.name;
-      const country = locationResponse.data['_links']['city:country'].name;
+      const { name: city } = locationResponse.data;
+      const { name: country } = locationResponse.data['_links']['city:country'];
+      const { name: adminDivision } = locationResponse.data['_links']['city:admin1_division'];
 
       await prisma.place.upsert({
         where: {
-          city_country: { city, country },
+          geonameId: locationId,
         },
-        create: { city, country },
+        create: { geonameId: locationId, city, country, adminDivision },
         update: {},
       });
 
@@ -94,7 +95,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
             connect: { email },
           },
           place: {
-            connect: { city_country: { city, country } },
+            connect: { geonameId: locationId },
           },
         },
       });
