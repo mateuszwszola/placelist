@@ -1,5 +1,5 @@
+import { getPlacesWithStatistics } from 'lib/db';
 import type { NextApiRequest, NextApiResponse } from 'next';
-import prisma from '../../lib/prisma';
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse): Promise<void> {
   const { method } = req;
@@ -7,10 +7,12 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   switch (method) {
     case 'GET':
       try {
-        // TODO: Add filters and get statistics
-        const places = await prisma.place.findMany({
-          take: 100,
-        });
+        let { offset, limit } = req.query;
+
+        if (Array.isArray(offset)) offset = offset[0];
+        if (Array.isArray(limit)) limit = limit[0];
+
+        const places = await getPlacesWithStatistics(Number(offset), Number(limit));
 
         res.json({ places });
       } catch (err) {

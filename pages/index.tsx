@@ -23,8 +23,7 @@ interface Props {
 
 const Home = ({ places }: Props): JSX.Element => {
   const [session, loading] = useSession();
-
-  console.log({ places });
+  // TODO: React Query: Initial data from static props + infinite scroll
 
   return (
     <Layout>

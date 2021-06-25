@@ -1,7 +1,7 @@
 import axios from 'axios';
 import type { NextApiRequest, NextApiResponse } from 'next';
 import { getSession } from 'next-auth/client';
-import prisma from '../../lib/prisma';
+import prisma from 'lib/prisma';
 import { CITIES_ROOT_API_URL } from 'components/useCitySearch';
 import { Prisma } from '@prisma/client';
 
@@ -25,11 +25,15 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
   try {
     if (req.method === 'GET') {
-      let { placeId } = req.query;
+      let { placeId, offset, limit } = req.query;
+
       if (Array.isArray(placeId)) placeId = placeId[0];
+      if (Array.isArray(offset)) offset = offset[0];
+      if (Array.isArray(limit)) limit = limit[0];
 
       let query: Prisma.ReviewFindManyArgs = {
-        take: 100,
+        take: Number(limit) || 20,
+        skip: Number(offset) || 0,
         include: {
           author: {
             select: { name: true, image: true },
@@ -56,7 +60,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       const session = await getSession({ req });
 
       if (!session?.user?.email) {
-        return res.status(401).json({ message: 'You are not authorized to add a review' });
+        return res.status(401).json({ message: 'You are not authenticated' });
       }
 
       const { email } = session.user;
