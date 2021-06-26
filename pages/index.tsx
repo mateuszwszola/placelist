@@ -17,11 +17,11 @@ export const getStaticProps: GetStaticProps = async () => {
   };
 };
 
-interface Props {
+interface IProps {
   places: TPlacesWithStats[];
 }
 
-const Home = ({ places }: Props): JSX.Element => {
+const Home = ({ places }: IProps): JSX.Element => {
   const [session, loading] = useSession();
   // TODO: React Query: Initial data from static props + infinite scroll
 

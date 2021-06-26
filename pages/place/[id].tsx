@@ -1,15 +1,52 @@
-import type { Review, User } from '@prisma/client';
-import axios from 'axios';
-import type { AxiosError } from 'axios';
-import { useRouter } from 'next/router';
 import * as React from 'react';
+import axios from 'axios';
+import { useRouter } from 'next/router';
 import { useQuery } from 'react-query';
+import { Place, Review, User } from '@prisma/client';
 import Layout from 'components/Layout';
 import DisplayError from 'components/DisplayError';
+import prisma from 'lib/prisma';
+import { getPlacesWithStatistics } from 'lib/db';
+import type { AxiosError } from 'axios';
+import type { ParsedUrlQuery } from 'querystring';
+import type { GetStaticPaths, GetStaticProps } from 'next';
 
-type ReviewWithAuthor = Review & { author: Pick<User, 'name' | 'image'> };
+type TReviewWithAuthor = Review & { author: Pick<User, 'name' | 'image'> };
 
-const PlacePage = (): JSX.Element => {
+type TParams = ParsedUrlQuery & {
+  id: string;
+};
+
+export const getStaticPaths: GetStaticPaths = async () => {
+  // Prerender the first 20 best places
+  const places = await getPlacesWithStatistics();
+
+  const paths = places.map((place) => ({
+    params: { id: String(place.id) },
+  }));
+
+  return { paths, fallback: 'blocking' };
+};
+
+export const getStaticProps: GetStaticProps = async (context) => {
+  const { id } = context.params as TParams;
+
+  const place = await prisma.place.findUnique({
+    where: { id: Number(id) },
+  });
+
+  if (!place) {
+    return {
+      notFound: true,
+    };
+  }
+
+  return {
+    props: { place },
+  };
+};
+
+const PlacePage = ({ place }: { place: Place }): JSX.Element => {
   const router = useRouter();
   const { id } = router.query;
 
@@ -17,11 +54,11 @@ const PlacePage = (): JSX.Element => {
     isLoading,
     error,
     data: reviews,
-  } = useQuery<ReviewWithAuthor[], AxiosError>(
+  } = useQuery<TReviewWithAuthor[], AxiosError>(
     ['reviews', { placeId: id }],
     () => {
       return axios
-        .get<{ reviews: ReviewWithAuthor[] }>('/api/reviews', {
+        .get<{ reviews: TReviewWithAuthor[] }>('/api/reviews', {
           params: {
             placeId: id,
           },
@@ -33,11 +70,14 @@ const PlacePage = (): JSX.Element => {
     }
   );
 
+  const placeFullName = [place.city, place.adminDivision, place.country].filter(Boolean).join(', ');
+
   return (
     <Layout>
-      <h1 className="text-2xl ml-4">Place Id: {id}</h1>
-
       <main>
+        <div className="py-8">
+          <h1 className="text-2xl ml-4">Place: {placeFullName}</h1>
+        </div>
         <div>
           {error && (
             <p>
@@ -45,9 +85,9 @@ const PlacePage = (): JSX.Element => {
             </p>
           )}
           {isLoading ? (
-            <p>Loading...</p>
+            <p className="text-center">Loading...</p>
           ) : reviews?.length === 0 ? (
-            <p>No reviews</p>
+            <p className="text-center">No reviews</p>
           ) : (
             <div className="mt-4 flex flex-col items-center justify-center space-y-4 divide-y-2 divide-gray-100">
               {reviews?.map((review) => (

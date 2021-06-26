@@ -6,7 +6,33 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   const { method } = req;
 
   try {
-    if (req.method === 'POST') {
+    if (req.method === 'GET') {
+      const { id: placeId } = req.query;
+      let { offset, limit } = req.query;
+
+      if (Array.isArray(offset)) offset = offset[0];
+      if (Array.isArray(limit)) limit = limit[0];
+
+      const placeWithReviews = await prisma.place.findUnique({
+        where: { id: Number(placeId) },
+        include: {
+          reviews: {
+            skip: Number(offset) || 0,
+            take: Number(limit) || 20,
+            include: {
+              author: {
+                select: { name: true, image: true },
+              },
+            },
+            orderBy: {
+              updatedAt: 'desc',
+            },
+          },
+        },
+      });
+
+      res.json({ place: placeWithReviews });
+    } else if (req.method === 'POST') {
       const session = await getSession({ req });
 
       if (!session?.user?.email) {
