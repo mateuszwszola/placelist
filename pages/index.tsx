@@ -27,13 +27,12 @@ const Home = ({ places }: IProps): JSX.Element => {
 
   return (
     <Layout>
+      <Head>
+        <title>Place List - Best places to take a trip</title>
+        <meta name="description" content="Find best places for your next trip" />
+        <link rel="icon" href="/favicon.ico" />
+      </Head>
       <div className="min-h-screen px-2 flex flex-col justify-center align-center">
-        <Head>
-          <title>Place List - Best places to take a trip</title>
-          <meta name="description" content="Find best places for your next trip" />
-          <link rel="icon" href="/favicon.ico" />
-        </Head>
-
         <main className="py-20 flex-1 flex flex-col justify-center items-center">
           <h1 className="text-6xl font-bold">
             <span role="img" aria-label="World emoji">
@@ -45,7 +44,7 @@ const Home = ({ places }: IProps): JSX.Element => {
           {!loading && !session && (
             <>
               <button
-                className="py-2 px-4 bg-blue-500 text-white rounded-lg mt-6 uppercase tracking-wider font-medium hover:bg-blue-600 active:bg-blue-600"
+                className="py-2 px-4 bg-blue-500 text-white rounded-lg mt-6 font-medium hover:bg-blue-600 active:bg-blue-600"
                 onClick={() => signIn()}
               >
                 Join Placelist

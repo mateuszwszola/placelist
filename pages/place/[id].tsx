@@ -1,5 +1,6 @@
 import * as React from 'react';
 import axios from 'axios';
+import Head from 'next/head';
 import { useRouter } from 'next/router';
 import { useQuery } from 'react-query';
 import { Place, Review, User } from '@prisma/client';
@@ -74,6 +75,10 @@ const PlacePage = ({ place }: { place: Place }): JSX.Element => {
 
   return (
     <Layout>
+      <Head>
+        <title>{placeFullName} - Place List</title>
+      </Head>
+
       <main>
         <div className="py-8">
           <h1 className="text-2xl ml-4">Place: {placeFullName}</h1>

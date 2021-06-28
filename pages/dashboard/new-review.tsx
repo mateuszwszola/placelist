@@ -1,20 +1,21 @@
 import { Review } from '@prisma/client';
-import { useSession } from 'next-auth/client';
-import { useRouter } from 'next/router';
-import * as React from 'react';
-import { useMutation } from 'react-query';
-import axios, { AxiosError } from 'axios';
-import DisplayError from 'components/DisplayError';
-import Layout from 'components/Layout';
 import {
   Combobox,
   ComboboxInput,
-  ComboboxPopover,
   ComboboxList,
   ComboboxOption,
+  ComboboxPopover,
 } from '@reach/combobox';
 import '@reach/combobox/styles.css';
+import axios, { AxiosError } from 'axios';
+import DisplayError from 'components/DisplayError';
+import Layout from 'components/Layout';
 import useCitySearch from 'components/useCitySearch';
+import { useSession } from 'next-auth/client';
+import Head from 'next/head';
+import { useRouter } from 'next/router';
+import * as React from 'react';
+import { useMutation } from 'react-query';
 
 const AddReview = (): JSX.Element => {
   const formRef = React.useRef<HTMLFormElement>(null);
@@ -56,7 +57,6 @@ const AddReview = (): JSX.Element => {
 
   return (
     <div className="max-w-xl mx-auto mt-8">
-      <h2 className="text-2xl text-center">Add review</h2>
       {addReviewMutation.error && (
         <div role="alert" className="text-center flex flex-col">
           <p className="text-red-500">
@@ -133,7 +133,7 @@ const AddReview = (): JSX.Element => {
   );
 };
 
-const Dashboard = (): React.ReactNode => {
+const NewReview = (): React.ReactNode => {
   const [session, loading] = useSession();
 
   if (loading) {
@@ -150,11 +150,15 @@ const Dashboard = (): React.ReactNode => {
 
   return (
     <Layout>
-      <h1 className="text-2xl ml-4">Dashboard</h1>
+      <Head>
+        <title>New Review - Place List</title>
+      </Head>
+
+      <h1 className="text-2xl ml-4">New Review</h1>
 
       <AddReview />
     </Layout>
   );
 };
 
-export default Dashboard;
+export default NewReview;
