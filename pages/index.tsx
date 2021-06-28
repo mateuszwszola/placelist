@@ -44,7 +44,7 @@ const Home = ({ places }: IProps): JSX.Element => {
           {!loading && !session && (
             <>
               <button
-                className="py-2 px-4 bg-blue-500 text-white rounded-lg mt-6 font-medium hover:bg-blue-600 active:bg-blue-600"
+                className="py-2 px-4 bg-blue-500 uppercase tracking-wider text-white rounded-lg mt-6 font-medium hover:bg-blue-600 active:bg-blue-600"
                 onClick={() => signIn()}
               >
                 Join Placelist

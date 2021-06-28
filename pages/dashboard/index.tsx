@@ -27,7 +27,7 @@ const Dashboard = (): React.ReactNode => {
       </Head>
 
       <main className="max-w-screen-lg mx-auto">
-        <div className="flex justify-between">
+        <div className="mt-4 flex justify-between">
           <h1 className="text-2xl ml-4">Dashboard</h1>
 
           <Link href="/dashboard/new-review">
