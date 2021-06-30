@@ -1,9 +1,10 @@
+import { Prisma, Review } from '@prisma/client';
 import axios from 'axios';
+import { CITIES_ROOT_API_URL } from 'components/useCitySearch';
+import prisma from 'lib/prisma';
+import { pick } from 'lodash';
 import type { NextApiRequest, NextApiResponse } from 'next';
 import { getSession } from 'next-auth/client';
-import prisma from 'lib/prisma';
-import { CITIES_ROOT_API_URL } from 'components/useCitySearch';
-import { Prisma } from '@prisma/client';
 
 type TLocationResponse = {
   _links: {
@@ -25,11 +26,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
   try {
     if (req.method === 'GET') {
-      let { placeId, offset, limit } = req.query;
-
-      if (Array.isArray(placeId)) placeId = placeId[0];
-      if (Array.isArray(offset)) offset = offset[0];
-      if (Array.isArray(limit)) limit = limit[0];
+      const { placeId, offset, limit } = req.query;
 
       let query: Prisma.ReviewFindManyArgs = {
         take: Number(limit) || 20,
@@ -57,27 +54,63 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
       res.json({ reviews });
     } else if (req.method === 'POST') {
+      // Get user session
       const session = await getSession({ req });
-
       if (!session?.user?.email) {
         return res.status(401).json({ message: 'You are not authenticated' });
       }
 
-      const { email } = session.user;
-      const { locationId, comment, cost, safety, fun } = req.body;
+      // Get values
+      const statsFields = ['cost', 'safety', 'fun'];
+      const requiredFields = ['locationId', ...statsFields];
+      const fields = [...requiredFields, 'comment'];
 
-      if (!locationId) {
-        return res.status(400).json({ message: 'Location is ambiguous' });
+      const values = pick(req.body, fields);
+
+      // Validate values
+      const errors: { [key: string]: string } = {};
+      // Validate required fields
+      requiredFields.forEach((field) => {
+        if (!values[field]) {
+          if (field === 'locationId') {
+            errors[field] = 'Location is ambiguous';
+          } else {
+            errors[field] = `"${field}" is missing in a request body`;
+          }
+        }
+      });
+
+      // Validate review stats values
+      for (const stat in pick(values, statsFields)) {
+        if (Number.isNaN(values[stat])) {
+          errors[stat] = `"${stat}" property must be an integer`;
+        }
+        // Parse stats to integers
+        values[stat] = Number.parseInt(values[stat]);
+        if (values[stat] < 0 || values[stat] > 10) {
+          errors[stat] = `"${stat}" property must be an integer between 0 and 10`;
+        }
+      }
+
+      if (Object.keys(errors).length > 0) {
+        return res.status(400).json({ message: Object.values(errors).join(', ') });
       }
 
       // Validate location
-      const locationResponse = await axios.get<TLocationResponse>(
-        `${CITIES_ROOT_API_URL}/geonameid:${locationId}`
-      );
+      let locationResponse;
+      try {
+        locationResponse = await axios.get<TLocationResponse>(
+          `${CITIES_ROOT_API_URL}/geonameid:${values.locationId}`
+        );
+      } catch (err) {
+        return res.status(400).json({ message: 'Location is ambiguous' });
+      }
 
       const { name: city } = locationResponse.data;
       const { name: country } = locationResponse.data['_links']['city:country'];
       const { name: adminDivision } = locationResponse.data['_links']['city:admin1_division'];
+
+      const { locationId } = values;
 
       await prisma.place.upsert({
         where: {
@@ -89,16 +122,16 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
       const review = await prisma.review.create({
         data: {
-          comment,
-          cost: Number(cost),
-          safety: Number(safety),
-          fun: Number(fun),
           author: {
-            connect: { email },
+            connect: { email: session.user.email },
           },
           place: {
             connect: { geonameId: locationId },
           },
+          ...(pick(values, ['comment', ...statsFields]) as Pick<
+            Review,
+            'cost' | 'fun' | 'safety' | 'comment'
+          >),
         },
       });
 

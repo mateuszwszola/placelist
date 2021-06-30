@@ -16,6 +16,7 @@ import Head from 'next/head';
 import { useRouter } from 'next/router';
 import * as React from 'react';
 import { useMutation } from 'react-query';
+import Link from 'next/link';
 
 const AddReview = (): JSX.Element => {
   const formRef = React.useRef<HTMLFormElement>(null);
@@ -154,7 +155,15 @@ const NewReview = (): React.ReactNode => {
         <title>New Review - Place List</title>
       </Head>
 
-      <h1 className="text-2xl ml-4">New Review</h1>
+      <div className="mt-4 flex justify-between max-w-screen-lg mx-auto">
+        <h1 className="text-2xl ml-4">New Review</h1>
+
+        <Link href="/dashboard">
+          <a className="py-2 px-4 border-2 border-blue-500 rounded-lg font-medium hover:bg-blue-500 hover:text-white active:border-blue-600">
+            Cancel
+          </a>
+        </Link>
+      </div>
 
       <AddReview />
     </Layout>

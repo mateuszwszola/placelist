@@ -12,7 +12,7 @@ import type { AxiosError } from 'axios';
 import type { ParsedUrlQuery } from 'querystring';
 import type { GetStaticPaths, GetStaticProps } from 'next';
 
-type TReviewWithAuthor = Review & { author: Pick<User, 'name' | 'image'> };
+export type TReviewWithAuthor = Review & { author: Pick<User, 'name' | 'image'> };
 
 type TParams = ParsedUrlQuery & {
   id: string;
