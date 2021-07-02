@@ -16,6 +16,7 @@
   "dependencies": {
     "@next-auth/prisma-adapter": "^0.4.4",
     "@prisma/client": "^2.25.0",
+    "@reach/alert": "^0.15.2",
     "@reach/combobox": "^0.15.1",
     "axios": "^0.21.1",
     "lodash": "^4.17.21",

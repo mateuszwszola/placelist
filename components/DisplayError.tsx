@@ -1,4 +1,5 @@
 import { AxiosError } from 'axios';
+import Alert from '@reach/alert';
 
 interface Props {
   error: AxiosError;
@@ -14,7 +15,7 @@ const DisplayError = ({ error }: Props): JSX.Element => {
 
   errorMessage = errorMessage || 'Something went wrong... Sorry';
 
-  return <>{errorMessage}</>;
+  return <Alert>{errorMessage}</Alert>;
 };
 
 export default DisplayError;
