@@ -18,8 +18,8 @@ const Layout = ({ children }: Props): JSX.Element => {
 
   return (
     <>
-      <nav>
-        <ul className="py-4 px-4 flex justify-between items-center space-x-4">
+      <nav className={`w-full absolute z-20${router.pathname === '/' ? ' text-white' : ''}`}>
+        <ul className="py-4 px-6 max-w-screen-2xl mx-auto w-full flex justify-between items-center space-x-4">
           <li>
             <Link href="/">Home</Link>
           </li>

@@ -32,27 +32,47 @@ const Home = ({ places }: IProps): JSX.Element => {
         <meta name="description" content="Find best places for your next trip" />
         <link rel="icon" href="/favicon.ico" />
       </Head>
-      <div className="min-h-screen px-2 flex flex-col justify-center align-center">
-        <main className="py-20 flex-1 flex flex-col justify-center items-center">
-          <h1 className="text-6xl font-bold">
-            <span role="img" aria-label="World emoji">
-              🌍
-            </span>{' '}
-            Take a trip
-          </h1>
-          <p className="text-2xl mt-4">Find the best places to visit around the world</p>
-          {!loading && !session && (
-            <>
-              <button
-                className="py-2 px-4 bg-blue-500 uppercase tracking-wider text-white rounded-lg mt-6 font-medium hover:bg-blue-600 active:bg-blue-600"
-                onClick={() => signIn()}
-              >
-                Join Placelist
-              </button>
-            </>
-          )}
 
-          <div className="w-full mt-8 text-center">
+      <div className="min-h-screen flex flex-col">
+        {/* HERO */}
+        <section className="w-full h-96 relative">
+          {/* IMAGE */}
+          <Image
+            src="https://res.cloudinary.com/dtti654qn/image/upload/v1625261109/placelist/mountains-and-water_pgctpl.jpg"
+            layout="fill"
+            className="absolute inset-0 object-cover"
+          />
+          {/* CONTENT */}
+          <div className="relative z-10 w-full h-full flex flex-col justify-center items-center px-2">
+            <div className="text-center">
+              <h1 className="text-6xl font-bold text-white text-center">
+                <span role="img" aria-label="World emoji">
+                  🌍
+                </span>{' '}
+                Take a trip
+              </h1>
+              <p className="text-2xl mt-4 text-white">
+                Find the best places to visit around the world
+              </p>
+            </div>
+            <div>
+              {!loading && !session && (
+                <>
+                  <button
+                    className="py-2 px-4 bg-blue-500 uppercase tracking-wider text-white rounded-lg mt-6 font-medium hover:bg-blue-600 active:bg-blue-600"
+                    onClick={() => signIn()}
+                  >
+                    Join Placelist
+                  </button>
+                </>
+              )}
+            </div>
+          </div>
+        </section>
+
+        <main className="py-16 px-2 flex-1 flex flex-col">
+          <h2 className="text-3xl text-center">Popular places</h2>
+          <div className="mt-4 w-full text-center">
             {places?.length === 0 ? (
               <p>There are no places. Be the first one to add!</p>
             ) : (
