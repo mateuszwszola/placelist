@@ -23,13 +23,21 @@ interface ISingleReviewProps {
 
 const SingleReview = ({ review, onDelete, isLoading }: ISingleReviewProps): JSX.Element => {
   const [isDeleting, setIsDeleting] = React.useState(false);
+  const cancelButtonRef = React.useRef<HTMLButtonElement>(null);
+
+  // Focus cancel button, every time user clicks delete
+  React.useEffect(() => {
+    if (cancelButtonRef.current && isDeleting) {
+      cancelButtonRef.current.focus();
+    }
+  }, [cancelButtonRef, isDeleting]);
 
   const placeFullName = [review.place.city, review.place.adminDivision, review.place.country]
     .filter(Boolean)
     .join(', ');
 
   return (
-    <div className="w-full max-w-xl" key={review.id}>
+    <div className="w-full max-w-xl">
       <div className="flex justify-end pt-1">
         {isDeleting ? (
           <div className="space-x-2">
@@ -41,6 +49,7 @@ const SingleReview = ({ review, onDelete, isLoading }: ISingleReviewProps): JSX.
               {isLoading ? 'Loading...' : 'Are you sure? Delete'}
             </button>
             <button
+              ref={cancelButtonRef}
               disabled={isLoading}
               className="border-2 rounded px-2 py-1 font-medium"
               onClick={() => setIsDeleting(false)}
@@ -81,7 +90,7 @@ const SingleReview = ({ review, onDelete, isLoading }: ISingleReviewProps): JSX.
             )}
             <div>
               <h3 className="text-lg m-0">{review.author.name || 'User'}</h3>
-              <p className="text-xs text-gray-600">{new Date(review.createdAt).toUTCString()}</p>
+              <p className="text-xs text-gray-600">{new Date(review.createdAt).toLocaleString()}</p>
             </div>
           </div>
           <div className="flex space-x-2 text-sm font-semibold text-gray-700">
@@ -125,12 +134,21 @@ const Dashboard = (): React.ReactNode => {
         queryClient.invalidateQueries(['reviews', 'user']);
         queryClient.invalidateQueries(['reviews', { placeId: reviewId }]);
       },
+      onError: () => {
+        // On error, reset mutation after 5 seconds
+        setTimeout(() => {
+          deleteReviewMutation.reset();
+        }, 5000);
+      },
     }
   );
 
-  const handleReviewDelete = (reviewId: number) => () => {
-    deleteReviewMutation.mutate(reviewId);
-  };
+  const handleReviewDelete = React.useCallback(
+    (reviewId: number) => () => {
+      deleteReviewMutation.mutate(reviewId);
+    },
+    [deleteReviewMutation]
+  );
 
   if (loading) {
     return <p>Loading...</p>;
@@ -162,11 +180,12 @@ const Dashboard = (): React.ReactNode => {
         </div>
         <div>
           <h2>My Reviews</h2>
-          {error && (
-            <p>
-              <DisplayError error={error} />
-            </p>
-          )}
+
+          <div className="text-center text-red-500">
+            {deleteReviewMutation.error && <DisplayError error={deleteReviewMutation.error} />}
+            {error && <DisplayError error={error} />}
+          </div>
+
           {isLoading ? (
             <p className="text-center">Loading...</p>
           ) : reviews?.length === 0 ? (
