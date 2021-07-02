@@ -26,7 +26,7 @@ const Home = ({ places }: IProps): JSX.Element => {
   // TODO: React Query: Initial data from static props + infinite scroll
 
   return (
-    <Layout>
+    <Layout isLandingPage={true}>
       <Head>
         <title>Place List - Best places to take a trip</title>
         <meta name="description" content="Find best places for your next trip" />

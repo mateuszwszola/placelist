@@ -5,9 +5,10 @@ import { useRouter } from 'next/router';
 
 interface Props {
   children: React.ReactNode;
+  isLandingPage: boolean;
 }
 
-const Layout = ({ children }: Props): JSX.Element => {
+const Layout = ({ children, isLandingPage }: Props): JSX.Element => {
   const [session, loading] = useSession();
   const router = useRouter();
 
@@ -16,9 +17,15 @@ const Layout = ({ children }: Props): JSX.Element => {
     router.replace(url);
   };
 
+  let navClassnames = 'w-full absolute z-50';
+
+  if (isLandingPage) {
+    navClassnames += ' text-white';
+  }
+
   return (
     <>
-      <nav className={`w-full absolute z-20${router.pathname === '/' ? ' text-white' : ''}`}>
+      <nav className={navClassnames}>
         <ul className="py-4 px-6 max-w-screen-2xl mx-auto w-full flex justify-between items-center space-x-4">
           <li>
             <Link href="/">Home</Link>
@@ -44,9 +51,13 @@ const Layout = ({ children }: Props): JSX.Element => {
           )}
         </ul>
       </nav>
-      <div className={`${router.pathname !== '/' ? 'pt-20' : ''}`}>{children}</div>
+      <div className={`${!isLandingPage ? 'pt-20' : ''}`}>{children}</div>
     </>
   );
+};
+
+Layout.defaultProps = {
+  isLandingPage: false,
 };
 
 export default Layout;
