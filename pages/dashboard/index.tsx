@@ -169,8 +169,8 @@ const Dashboard = (): React.ReactNode => {
       </Head>
 
       <main className="max-w-screen-lg mx-auto">
-        <div className="mt-4 flex justify-between">
-          <h1 className="text-2xl ml-4">Dashboard</h1>
+        <div className="flex justify-between">
+          <h1 className="text-2xl ml-4">My Reviews</h1>
 
           <Link href="/dashboard/new-review">
             <a className="py-2 px-4 bg-blue-500 text-white rounded-lg font-medium hover:bg-blue-600 active:bg-blue-600">
@@ -179,8 +179,6 @@ const Dashboard = (): React.ReactNode => {
           </Link>
         </div>
         <div>
-          <h2>My Reviews</h2>
-
           <div className="text-center text-red-500">
             {deleteReviewMutation.error && <DisplayError error={deleteReviewMutation.error} />}
             {error && <DisplayError error={error} />}

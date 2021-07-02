@@ -57,7 +57,7 @@ const AddReview = (): JSX.Element => {
   };
 
   return (
-    <div className="max-w-xl mx-auto mt-8">
+    <div className="max-w-xl mx-auto">
       {addReviewMutation.error && (
         <div role="alert" className="text-center flex flex-col">
           <p className="text-red-500">
@@ -155,7 +155,7 @@ const NewReview = (): React.ReactNode => {
         <title>New Review - Place List</title>
       </Head>
 
-      <div className="mt-4 flex justify-between max-w-screen-lg mx-auto">
+      <div className="flex justify-between max-w-screen-lg mx-auto">
         <h1 className="text-2xl ml-4">New Review</h1>
 
         <Link href="/dashboard">

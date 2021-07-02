@@ -44,7 +44,7 @@ const Layout = ({ children }: Props): JSX.Element => {
           )}
         </ul>
       </nav>
-      {children}
+      <div className={`${router.pathname !== '/' ? 'pt-20' : ''}`}>{children}</div>
     </>
   );
 };

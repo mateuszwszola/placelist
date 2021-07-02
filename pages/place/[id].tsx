@@ -80,7 +80,7 @@ const PlacePage = ({ place }: { place: Place }): JSX.Element => {
       </Head>
 
       <main>
-        <div className="py-8">
+        <div className="pb-8">
           <h1 className="text-2xl ml-4">Place: {placeFullName}</h1>
         </div>
         <div>
