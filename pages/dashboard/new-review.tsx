@@ -154,18 +154,19 @@ const NewReview = (): React.ReactNode => {
       <Head>
         <title>New Review - Place List</title>
       </Head>
+      <main className="py-8 px-2 max-w-screen-xl mx-auto">
+        <div className="flex justify-between">
+          <h1 className="text-2xl">New Review</h1>
 
-      <div className="flex justify-between max-w-screen-lg mx-auto">
-        <h1 className="text-2xl ml-4">New Review</h1>
+          <Link href="/dashboard">
+            <a className="py-2 px-4 border-2 border-blue-500 rounded-lg font-medium hover:bg-blue-500 hover:text-white active:border-blue-600">
+              Cancel
+            </a>
+          </Link>
+        </div>
 
-        <Link href="/dashboard">
-          <a className="py-2 px-4 border-2 border-blue-500 rounded-lg font-medium hover:bg-blue-500 hover:text-white active:border-blue-600">
-            Cancel
-          </a>
-        </Link>
-      </div>
-
-      <AddReview />
+        <AddReview />
+      </main>
     </Layout>
   );
 };

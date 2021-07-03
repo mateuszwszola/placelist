@@ -2,6 +2,7 @@ import * as React from 'react';
 import { signIn, signOut, useSession } from 'next-auth/client';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
+import Image from 'next/image';
 
 interface Props {
   children: React.ReactNode;
@@ -24,9 +25,9 @@ const Layout = ({ children, isLandingPage }: Props): JSX.Element => {
   }
 
   return (
-    <>
+    <div className="min-h-screen flex flex-col">
       <nav className={navClassnames}>
-        <ul className="py-4 px-6 max-w-screen-2xl mx-auto w-full flex justify-between items-center space-x-4">
+        <ul className="py-4 px-6 max-w-screen-2xl mx-auto w-full flex justify-between items-center space-x-4 font-medium text-md">
           <li>
             <Link href="/">Home</Link>
           </li>
@@ -39,20 +40,45 @@ const Layout = ({ children, isLandingPage }: Props): JSX.Element => {
                 <Link href="/dashboard">Dashboard</Link>
               </li>
               <li>
-                <button onClick={handleSignOut}>Sign Out</button>
+                <button
+                  className={`py-2 px-4 border-2 rounded-md font-medium ${
+                    isLandingPage ? 'border-white' : 'border-black'
+                  }`}
+                  onClick={handleSignOut}
+                >
+                  Sign Out
+                </button>
               </li>
             </>
           ) : (
             <>
               <li>
-                <button onClick={() => signIn()}>Sign In</button>
+                <button
+                  className={`py-2 px-4 border-2 rounded-md font-medium ${
+                    isLandingPage ? 'border-white' : 'border-black'
+                  }`}
+                  onClick={() => signIn()}
+                >
+                  Sign In
+                </button>
               </li>
             </>
           )}
         </ul>
       </nav>
-      <div className={`${!isLandingPage ? 'pt-20' : ''}`}>{children}</div>
-    </>
+
+      <div className={`flex-1 ${!isLandingPage ? 'pt-20' : ''}`}>{children}</div>
+
+      <footer className="w-full py-4 border-t border-gray-200 flex justify-center items-center">
+        <span>Powered by</span>
+        <div className="flex items-center ml-2">
+          <span>
+            <Image src="/logo.svg" width={30} height={30} />
+          </span>
+          <span className="ml-1">Place List</span>
+        </div>
+      </footer>
+    </div>
   );
 };
 

@@ -79,10 +79,9 @@ const PlacePage = ({ place }: { place: Place }): JSX.Element => {
         <title>{placeFullName} - Place List</title>
       </Head>
 
-      <main>
-        <div className="pb-8">
-          <h1 className="text-2xl ml-4">Place: {placeFullName}</h1>
-        </div>
+      <main className="py-8 px-2 max-w-screen-xl mx-auto">
+        <h1 className="text-2xl">Place: {placeFullName}</h1>
+
         <div>
           {error && (
             <p>
@@ -94,7 +93,7 @@ const PlacePage = ({ place }: { place: Place }): JSX.Element => {
           ) : reviews?.length === 0 ? (
             <p className="text-center">No reviews</p>
           ) : (
-            <div className="mt-4 flex flex-col items-center justify-center space-y-4 divide-y-2 divide-gray-100">
+            <div className="mt-8 flex flex-col items-center justify-center space-y-4 divide-y-2 divide-gray-100">
               {reviews?.map((review) => (
                 <div className="w-full max-w-xl py-4" key={review.id}>
                   <div className="flex justify-between">

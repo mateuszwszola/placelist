@@ -168,9 +168,9 @@ const Dashboard = (): React.ReactNode => {
         <title>Dashboard - Place List</title>
       </Head>
 
-      <main className="max-w-screen-lg mx-auto">
+      <main className="py-8 px-2 max-w-screen-xl mx-auto">
         <div className="flex justify-between">
-          <h1 className="text-2xl ml-4">My Reviews</h1>
+          <h1 className="text-2xl">My Reviews</h1>
 
           <Link href="/dashboard/new-review">
             <a className="py-2 px-4 bg-blue-500 text-white rounded-lg font-medium hover:bg-blue-600 active:bg-blue-600">
