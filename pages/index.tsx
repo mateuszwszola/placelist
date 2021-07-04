@@ -21,6 +21,16 @@ interface IProps {
   places: TPlacesWithStats[];
 }
 
+const getStatColor = (score: number): string => {
+  if (score <= 3) {
+    return 'bg-red-400';
+  } else if (score <= 6) {
+    return 'bg-yellow-400';
+  } else {
+    return 'bg-green-400';
+  }
+};
+
 const Home = ({ places }: IProps): JSX.Element => {
   const [session, loading] = useSession();
   // TODO: React Query: Initial data from static props + infinite scroll
@@ -79,40 +89,77 @@ const Home = ({ places }: IProps): JSX.Element => {
           {places?.length === 0 ? (
             <p>There are no places. Be the first one to add!</p>
           ) : (
-            <div className="flex flex-wrap justify-center items-center">
+            <ul className="flex flex-wrap justify-center items-center">
               {places?.map((place) => (
-                <Link key={place.id} href={`/place/${place.id}`}>
-                  <a className="m-2 w-full max-w-xs p-4 text-left no-underline border border-blue-100 rounded-lg bg-white">
-                    <div>
+                <li
+                  className="w-full max-w-xs m-2 p-6 rounded-lg bg-white border border-blue-100"
+                  key={place.id}
+                >
+                  <Link href={`/place/${place.id}`}>
+                    <a className="no-underline">
                       <div className="text-center">
-                        <h3 className="text-xl">{place.city}</h3>
+                        <h3 className="text-2xl font-medium">{place.city}</h3>
                         <h4 className="text-lg">{place.country}</h4>
                       </div>
-                      <div className="mt-4 space-y-1">
-                        <p>
-                          <span role="img" aria-label="bill emoji">
-                            💸
-                          </span>{' '}
-                          Cost {place.averageCost}/10
-                        </p>
-                        <p>
-                          <span role="img" aria-label="helmet emoji">
-                            ⛑
-                          </span>{' '}
-                          Safety {place.averageSafety}/10
-                        </p>
-                        <p>
-                          <span role="img" aria-label="fun emoji">
-                            🤪
-                          </span>{' '}
-                          Fun {place.averageFun}/10
-                        </p>
-                      </div>
-                    </div>
-                  </a>
-                </Link>
+
+                      <ul className="text-left mt-8 space-y-2">
+                        <li className="flex items-center">
+                          <div className="flex-1">
+                            <span role="img" aria-label="bill emoji">
+                              💸
+                            </span>
+                            <span className="ml-2">Cost</span>{' '}
+                            <span className="sr-only">{place.averageCost}</span>
+                          </div>
+                          <div className="flex-1 h-6 w-full bg-gray-200 rounded text-red-500">
+                            <div
+                              style={{
+                                width: `${place.averageCost * 10}%`,
+                              }}
+                              className={`rounded h-6 ${getStatColor(place.averageCost)}`}
+                            />
+                          </div>
+                        </li>
+                        <li className="flex items-center">
+                          <div className="flex-1">
+                            <span role="img" aria-label="helmet emoji">
+                              ⛑
+                            </span>
+                            <span className="ml-2">Safety</span>{' '}
+                            <span className="sr-only">{place.averageSafety}</span>
+                          </div>
+                          <div className="flex-1 h-6 w-full bg-gray-200 rounded">
+                            <div
+                              style={{
+                                width: `${place.averageSafety * 10}%`,
+                              }}
+                              className={`rounded h-6 ${getStatColor(place.averageSafety)}`}
+                            ></div>
+                          </div>
+                        </li>
+                        <li className="flex items-center">
+                          <div className="flex-1">
+                            <span role="img" aria-label="fun emoji">
+                              🤪
+                            </span>
+                            <span className="ml-2">Fun</span>{' '}
+                            <span className="sr-only">{place.averageFun}</span>
+                          </div>
+                          <div className="flex-1 h-6 w-full bg-gray-200 rounded">
+                            <div
+                              style={{
+                                width: `${place.averageFun * 10}%`,
+                              }}
+                              className={`rounded h-6 ${getStatColor(place.averageFun)}`}
+                            ></div>
+                          </div>
+                        </li>
+                      </ul>
+                    </a>
+                  </Link>
+                </li>
               ))}
-            </div>
+            </ul>
           )}
         </div>
       </main>
