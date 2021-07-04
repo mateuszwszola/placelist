@@ -25,9 +25,9 @@ const Layout = ({ children, isLandingPage }: Props): JSX.Element => {
   }
 
   return (
-    <div className="min-h-screen flex flex-col">
+    <div className="min-h-screen flex flex-col bg-gray-50 text-gray-900 font-sans">
       <nav className={navClassnames}>
-        <ul className="py-4 px-6 max-w-screen-2xl mx-auto w-full flex justify-between items-center space-x-4 font-medium text-md">
+        <ul className="py-4 px-4 sm:px-6 max-w-screen-2xl mx-auto w-full flex justify-between items-center space-x-2 sm:space-x-4 font-medium text-base md:text-lg">
           <li>
             <Link href="/">Home</Link>
           </li>
@@ -69,7 +69,7 @@ const Layout = ({ children, isLandingPage }: Props): JSX.Element => {
 
       <div className={`flex-1 ${!isLandingPage ? 'pt-20' : ''}`}>{children}</div>
 
-      <footer className="w-full py-4 border-t border-gray-200 flex justify-center items-center">
+      <footer className="w-full py-4 border-t border-gray-200 flex justify-center items-center bg-white">
         <span>Powered by</span>
         <div className="flex items-center ml-2">
           <span>

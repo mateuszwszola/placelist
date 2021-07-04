@@ -34,40 +34,44 @@ const Home = ({ places }: IProps): JSX.Element => {
       </Head>
 
       {/* HERO */}
-      <section className="w-full h-96 relative bg-gray-800">
-        {/* IMAGE */}
-        <Image
-          src="https://res.cloudinary.com/dtti654qn/image/upload/v1625261109/placelist/mountains-and-water_pgctpl.jpg"
-          layout="fill"
-          className="absolute inset-0 object-cover"
-        />
-        {/* CONTENT */}
-        <div className="relative z-10 w-full h-full flex flex-col justify-center items-center px-2">
-          <div className="text-center">
-            <h1 className="text-6xl font-bold text-white text-center">
-              <span role="img" aria-label="World emoji">
-                🌍
-              </span>{' '}
-              Take a trip
-            </h1>
-            <p className="text-2xl mt-4 text-white">
-              Find the best places to visit around the world
-            </p>
+      <div className="md:rounded-br-40xl overflow-hidden">
+        <section className="w-full h-96 relative bg-gradient-to-b from-blue-600 to-green-400 overflow-hidden">
+          {/* IMAGE */}
+          <div className="h-full absolute inset-0 z-0">
+            <Image
+              src="https://res.cloudinary.com/dtti654qn/image/upload/v1625261109/placelist/mountains-and-water_pgctpl.jpg"
+              layout="fill"
+              className="w-full h-full object-cover opacity-50"
+            />
           </div>
-          <div>
-            {!loading && !session && (
-              <>
-                <button
-                  className="py-2 px-4 bg-blue-500 uppercase tracking-wider text-white rounded-lg mt-6 font-medium hover:bg-blue-600 active:bg-blue-600"
-                  onClick={() => signIn()}
-                >
-                  Join Placelist
-                </button>
-              </>
-            )}
+          {/* CONTENT */}
+          <div className="relative z-10 w-full h-full flex flex-col justify-center items-center px-2">
+            <div className="text-center">
+              <h1 className="text-4xl md:text-5xl xl:text-6xl font-bold leading-tight text-white text-center">
+                <span role="img" aria-label="World emoji">
+                  🌍
+                </span>{' '}
+                Take a trip
+              </h1>
+              <p className="text-xl md:text-2xl mt-4 text-white leading-snug">
+                Find the best places to visit around the world
+              </p>
+            </div>
+            <div>
+              {!loading && !session && (
+                <>
+                  <button
+                    className="py-2 px-4 bg-blue-500 text-sm sm:text-base uppercase tracking-wider text-white rounded-md mt-8 font-semibold hover:bg-blue-600 active:bg-blue-600 shadow-lg"
+                    onClick={() => signIn()}
+                  >
+                    Join Placelist
+                  </button>
+                </>
+              )}
+            </div>
           </div>
-        </div>
-      </section>
+        </section>
+      </div>
 
       <main className="py-16 px-2">
         <h2 className="text-3xl text-center">Popular places</h2>
@@ -78,7 +82,7 @@ const Home = ({ places }: IProps): JSX.Element => {
             <div className="flex flex-wrap justify-center items-center">
               {places?.map((place) => (
                 <Link key={place.id} href={`/place/${place.id}`}>
-                  <a className="m-2 w-full max-w-xs p-4 text-left no-underline border border-blue-100 rounded-lg">
+                  <a className="m-2 w-full max-w-xs p-4 text-left no-underline border border-blue-100 rounded-lg bg-white">
                     <div>
                       <div className="text-center">
                         <h3 className="text-xl">{place.city}</h3>
