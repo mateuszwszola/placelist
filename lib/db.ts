@@ -1,7 +1,7 @@
 import { Place } from '@prisma/client';
 import prisma from './prisma';
 
-export type TPlacesWithStats = Place & {
+export type PlaceWithStats = Place & {
   numberOfReviews: number;
   averageCost: number;
   averageSafety: number;
@@ -9,7 +9,7 @@ export type TPlacesWithStats = Place & {
   score: number;
 };
 
-const getPlacesWithStatistics = async (offset = 0, limit = 20): Promise<TPlacesWithStats[]> => {
+const getPlacesWithStatistics = async (offset = 0, limit = 20): Promise<PlaceWithStats[]> => {
   const results = await prisma.$queryRaw(`
     SELECT stats.*, place.* FROM "Place" place
     JOIN (SELECT "placeId", 

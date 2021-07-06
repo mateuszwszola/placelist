@@ -12,7 +12,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         if (Array.isArray(offset)) offset = offset[0];
         if (Array.isArray(limit)) limit = limit[0];
 
-        const places = await getPlacesWithStatistics(Number(offset), Number(limit));
+        const places = await getPlacesWithStatistics(Number(offset) ?? 0, Number(limit) ?? 20);
 
         res.json({ places });
       } catch (err) {

@@ -40,8 +40,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
         return res.json({ reviews: userReviews });
       } catch (err) {
-        console.log('An error has occured: ', err.message);
-        res.status(500).json({ message: `An error has occured: ${err.message}` });
+        console.log('An error has occurred: ', err.message);
+        res.status(500).json({ message: `An error has occurred: ${err.message}` });
       }
       break;
     default:

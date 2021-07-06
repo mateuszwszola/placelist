@@ -6,10 +6,16 @@ import * as React from 'react';
 import { signIn, useSession } from 'next-auth/client';
 import Layout from 'components/Layout';
 import { getPlacesWithStatistics } from 'lib/db';
-import type { TPlacesWithStats } from 'lib/db';
+import type { PlaceWithStats } from 'lib/db';
+import { useInfiniteQuery } from 'react-query';
+import axios from 'axios';
+import useIntersectionObserver from 'utils/useIntersectionObserver';
+import { getStatColor } from 'utils/helpers';
+
+const PAGE_LIMIT = 20;
 
 export const getStaticProps: GetStaticProps = async () => {
-  const places = await getPlacesWithStatistics();
+  const places = await getPlacesWithStatistics(0, PAGE_LIMIT);
 
   return {
     props: { places },
@@ -17,23 +23,44 @@ export const getStaticProps: GetStaticProps = async () => {
   };
 };
 
-interface IProps {
-  places: TPlacesWithStats[];
+interface Props {
+  places: PlaceWithStats[];
 }
 
-const getStatColor = (score: number): string => {
-  if (score <= 3) {
-    return 'bg-red-400';
-  } else if (score <= 6) {
-    return 'bg-yellow-400';
-  } else {
-    return 'bg-green-400';
-  }
+const fetchPlaces = async ({ pageParam = 0 }): Promise<PlaceWithStats[]> => {
+  const skip = pageParam * PAGE_LIMIT;
+  const response = await axios.get<{ places: PlaceWithStats[] }>(
+    `/api/places?offset=${skip}&limit=${PAGE_LIMIT}`
+  );
+  return response.data.places;
 };
 
-const Home = ({ places }: IProps): JSX.Element => {
+const Home = ({ places: initialPlaces }: Props): JSX.Element => {
   const [session, loading] = useSession();
-  // TODO: React Query: Initial data from static props + infinite scroll
+  const loadMoreButtonRef = React.useRef<HTMLButtonElement>(null);
+
+  const { data, fetchNextPage, hasNextPage, isFetchingNextPage } = useInfiniteQuery(
+    'places',
+    fetchPlaces,
+    {
+      getNextPageParam: (lastPage, pages) => {
+        const hasNextPageParam = lastPage.length >= PAGE_LIMIT ? pages.length : false;
+        return hasNextPageParam;
+      },
+      initialData: {
+        pages: [initialPlaces],
+        pageParams: [0],
+      },
+    }
+  );
+
+  useIntersectionObserver({
+    target: loadMoreButtonRef,
+    onIntersect: fetchNextPage,
+    enabled: hasNextPage,
+  });
+
+  const places = data?.pages?.flat() || [];
 
   return (
     <Layout isLandingPage={true}>
@@ -44,9 +71,9 @@ const Home = ({ places }: IProps): JSX.Element => {
       </Head>
 
       {/* HERO */}
-      <div className="md:rounded-br-40xl overflow-hidden">
+      <div className="overflow-hidden">
         <section className="w-full h-96 relative bg-gradient-to-b from-blue-600 to-green-400 overflow-hidden">
-          {/* IMAGE */}
+          {/* HERO IMAGE */}
           <div className="h-full absolute inset-0 z-0">
             <Image
               src="https://res.cloudinary.com/dtti654qn/image/upload/v1625261109/placelist/mountains-and-water_pgctpl.jpg"
@@ -54,7 +81,7 @@ const Home = ({ places }: IProps): JSX.Element => {
               className="w-full h-full object-cover opacity-50"
             />
           </div>
-          {/* CONTENT */}
+          {/* HERO CONTENT */}
           <div className="relative z-10 w-full h-full flex flex-col justify-center items-center px-2">
             <div className="text-center">
               <h1 className="text-4xl md:text-5xl xl:text-6xl font-bold leading-tight text-white text-center">
@@ -83,83 +110,102 @@ const Home = ({ places }: IProps): JSX.Element => {
         </section>
       </div>
 
+      {/* PLACES */}
       <main className="py-16 px-2">
         <h2 className="text-3xl text-center">Popular places</h2>
         <div className="mt-4 w-full text-center">
           {places?.length === 0 ? (
             <p>There are no places. Be the first one to add!</p>
           ) : (
-            <ul className="flex flex-wrap justify-center items-center">
-              {places?.map((place) => (
-                <li
-                  className="w-full max-w-xs m-2 p-6 rounded-lg bg-white border border-blue-100"
-                  key={place.id}
-                >
-                  <Link href={`/place/${place.id}`}>
-                    <a className="no-underline">
-                      <div className="text-center">
-                        <h3 className="text-2xl font-medium">{place.city}</h3>
-                        <h4 className="text-lg">{place.country}</h4>
-                      </div>
+            <>
+              <ul className="flex flex-wrap justify-center items-center">
+                {places.map((place) => (
+                  <li
+                    className="w-full max-w-xs m-2 p-5 rounded-lg bg-white border border-blue-100"
+                    key={place.id}
+                  >
+                    <Link href={`/place/${place.id}`}>
+                      <a className="no-underline">
+                        <div className="text-center">
+                          <h3 className="text-2xl font-medium">{place.city}</h3>
+                          <h4 className="text-lg">{place.country}</h4>
+                        </div>
 
-                      <ul className="text-left mt-8 space-y-2">
-                        <li className="flex items-center">
-                          <div className="flex-1">
-                            <span role="img" aria-label="bill emoji">
-                              💸
-                            </span>
-                            <span className="ml-2">Cost</span>{' '}
-                            <span className="sr-only">{place.averageCost}</span>
-                          </div>
-                          <div className="flex-1 h-6 w-full bg-gray-200 rounded text-red-500">
-                            <div
-                              style={{
-                                width: `${place.averageCost * 10}%`,
-                              }}
-                              className={`rounded h-6 ${getStatColor(place.averageCost)}`}
-                            />
-                          </div>
-                        </li>
-                        <li className="flex items-center">
-                          <div className="flex-1">
-                            <span role="img" aria-label="helmet emoji">
-                              ⛑
-                            </span>
-                            <span className="ml-2">Safety</span>{' '}
-                            <span className="sr-only">{place.averageSafety}</span>
-                          </div>
-                          <div className="flex-1 h-6 w-full bg-gray-200 rounded">
-                            <div
-                              style={{
-                                width: `${place.averageSafety * 10}%`,
-                              }}
-                              className={`rounded h-6 ${getStatColor(place.averageSafety)}`}
-                            ></div>
-                          </div>
-                        </li>
-                        <li className="flex items-center">
-                          <div className="flex-1">
-                            <span role="img" aria-label="fun emoji">
-                              🤪
-                            </span>
-                            <span className="ml-2">Fun</span>{' '}
-                            <span className="sr-only">{place.averageFun}</span>
-                          </div>
-                          <div className="flex-1 h-6 w-full bg-gray-200 rounded">
-                            <div
-                              style={{
-                                width: `${place.averageFun * 10}%`,
-                              }}
-                              className={`rounded h-6 ${getStatColor(place.averageFun)}`}
-                            ></div>
-                          </div>
-                        </li>
-                      </ul>
-                    </a>
-                  </Link>
-                </li>
-              ))}
-            </ul>
+                        <ul className="text-left mt-8 space-y-2">
+                          <li className="flex items-center">
+                            <div className="flex-1">
+                              <span role="img" aria-label="bill emoji">
+                                💸
+                              </span>
+                              <span className="ml-2">Cost</span>{' '}
+                              <span className="sr-only">{place.averageCost}</span>
+                            </div>
+                            <div className="flex-1 h-6 w-full bg-gray-200 rounded text-red-500">
+                              <div
+                                style={{
+                                  width: `${place.averageCost * 10}%`,
+                                }}
+                                className={`rounded h-6 ${getStatColor(place.averageCost)}`}
+                              />
+                            </div>
+                          </li>
+                          <li className="flex items-center">
+                            <div className="flex-1">
+                              <span role="img" aria-label="helmet emoji">
+                                ⛑
+                              </span>
+                              <span className="ml-2">Safety</span>{' '}
+                              <span className="sr-only">{place.averageSafety}</span>
+                            </div>
+                            <div className="flex-1 h-6 w-full bg-gray-200 rounded">
+                              <div
+                                style={{
+                                  width: `${place.averageSafety * 10}%`,
+                                }}
+                                className={`rounded h-6 ${getStatColor(place.averageSafety)}`}
+                              ></div>
+                            </div>
+                          </li>
+                          <li className="flex items-center">
+                            <div className="flex-1">
+                              <span role="img" aria-label="fun emoji">
+                                🤪
+                              </span>
+                              <span className="ml-2">Fun</span>{' '}
+                              <span className="sr-only">{place.averageFun}</span>
+                            </div>
+                            <div className="flex-1 h-6 w-full bg-gray-200 rounded">
+                              <div
+                                style={{
+                                  width: `${place.averageFun * 10}%`,
+                                }}
+                                className={`rounded h-6 ${getStatColor(place.averageFun)}`}
+                              ></div>
+                            </div>
+                          </li>
+                        </ul>
+                      </a>
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+              <div>
+                <button
+                  className={`mt-8 py-2 px-4 border active:border-blue-600 rounded-md hover:text-gray-700 font-semibold ${
+                    !isFetchingNextPage && !hasNextPage ? 'opacity-50' : ''
+                  }`}
+                  ref={loadMoreButtonRef}
+                  onClick={() => fetchNextPage()}
+                  disabled={!hasNextPage || isFetchingNextPage}
+                >
+                  {isFetchingNextPage
+                    ? 'Loading more...'
+                    : hasNextPage
+                    ? 'Load Newer'
+                    : 'Nothing more to load'}
+                </button>
+              </div>
+            </>
           )}
         </div>
       </main>

@@ -94,9 +94,9 @@ const SingleReview = ({ review, onDelete, isLoading }: ISingleReviewProps): JSX.
             </div>
           </div>
           <div className="flex space-x-2 text-sm font-semibold text-gray-700">
-            {review.cost && <p>Cost: {review.cost}/10</p>}
-            {review.safety && <p>Safety: {review.safety}/10</p>}
-            {review.fun && <p>Fun: {review.fun}/10</p>}
+            <p>Cost: {review.cost}/10</p>
+            <p>Safety: {review.safety}/10</p>
+            <p>Fun: {review.fun}/10</p>
           </div>
         </div>
         <Link href={`/place/${review.place.id}`}>

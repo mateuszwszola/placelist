@@ -11,13 +11,13 @@ generator client {
 }
 
 model Place {
-  id       Int      @id @default(autoincrement())
-  geonameId String?
-  city     String   @db.VarChar(255)
-  country  String   @db.VarChar(255)
-  adminDivision String? @db.VarChar(255)
-  photoUrl String?  @db.VarChar(255)
-  reviews  Review[]
+  id            Int      @id @default(autoincrement())
+  geonameId     String?
+  city          String   @db.VarChar(255)
+  country       String   @db.VarChar(255)
+  adminDivision String?  @db.VarChar(255)
+  photoUrl      String?  @db.VarChar(255)
+  reviews       Review[]
 
   @@unique([geonameId])
 }
@@ -37,10 +37,10 @@ model Review {
 }
 
 model Profile {
-  id        String  @id @default(cuid())
-  bio       String? @db.VarChar(255)
-  userId    Int  @unique
-  user      User    @relation(fields: [userId], references: [id])
+  id     String  @id @default(cuid())
+  bio    String? @db.VarChar(255)
+  userId Int     @unique
+  user   User    @relation(fields: [userId], references: [id])
 }
 
 model User {
@@ -56,7 +56,6 @@ model User {
 
   @@map(name: "users")
 }
-
 
 model Account {
   id                 Int       @id @default(autoincrement())
