@@ -10,7 +10,6 @@ import type { PlaceWithStats } from 'lib/db';
 import { useInfiniteQuery } from 'react-query';
 import axios from 'axios';
 import useIntersectionObserver from 'utils/useIntersectionObserver';
-import { getStatColor } from 'utils/helpers';
 
 const PAGE_LIMIT = 20;
 
@@ -26,6 +25,16 @@ export const getStaticProps: GetStaticProps = async () => {
 interface Props {
   places: PlaceWithStats[];
 }
+
+const getStatColor = (score: number): string => {
+  if (score <= 3) {
+    return 'bg-red-400';
+  } else if (score <= 6) {
+    return 'bg-yellow-400';
+  } else {
+    return 'bg-green-400';
+  }
+};
 
 const fetchPlaces = async ({ pageParam = 0 }): Promise<PlaceWithStats[]> => {
   const skip = pageParam * PAGE_LIMIT;
@@ -192,7 +201,7 @@ const Home = ({ places: initialPlaces }: Props): JSX.Element => {
               <div>
                 <button
                   className={`mt-8 py-2 px-4 border active:border-blue-600 rounded-md hover:text-gray-700 font-semibold ${
-                    !isFetchingNextPage && !hasNextPage ? 'opacity-50' : ''
+                    !isFetchingNextPage && !hasNextPage ? 'opacity-50 pointer-events-none' : ''
                   }`}
                   ref={loadMoreButtonRef}
                   onClick={() => fetchNextPage()}
@@ -201,7 +210,7 @@ const Home = ({ places: initialPlaces }: Props): JSX.Element => {
                   {isFetchingNextPage
                     ? 'Loading more...'
                     : hasNextPage
-                    ? 'Load Newer'
+                    ? 'Load More'
                     : 'Nothing more to load'}
                 </button>
               </div>
