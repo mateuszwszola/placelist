@@ -22,10 +22,6 @@ export const getStaticProps: GetStaticProps = async () => {
   };
 };
 
-interface Props {
-  places: PlaceWithStats[];
-}
-
 const getStatColor = (score: number): string => {
   if (score <= 3) {
     return 'bg-red-400';
@@ -43,6 +39,10 @@ const fetchPlaces = async ({ pageParam = 0 }): Promise<PlaceWithStats[]> => {
   );
   return response.data.places;
 };
+
+interface Props {
+  places: PlaceWithStats[];
+}
 
 const Home = ({ places: initialPlaces }: Props): JSX.Element => {
   const [session, loading] = useSession();

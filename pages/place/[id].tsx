@@ -12,9 +12,9 @@ import type { AxiosError } from 'axios';
 import type { ParsedUrlQuery } from 'querystring';
 import type { GetStaticPaths, GetStaticProps } from 'next';
 
-export type TReviewWithAuthor = Review & { author: Pick<User, 'name' | 'image'> };
+export type ReviewWithAuthor = Review & { author: Pick<User, 'name' | 'image'> };
 
-type TParams = ParsedUrlQuery & {
+type Params = ParsedUrlQuery & {
   id: string;
 };
 
@@ -30,7 +30,7 @@ export const getStaticPaths: GetStaticPaths = async () => {
 };
 
 export const getStaticProps: GetStaticProps = async (context) => {
-  const { id } = context.params as TParams;
+  const { id } = context.params as Params;
 
   const place = await prisma.place.findUnique({
     where: { id: Number(id) },
@@ -55,11 +55,11 @@ const PlacePage = ({ place }: { place: Place }): JSX.Element => {
     isLoading,
     error,
     data: reviews,
-  } = useQuery<TReviewWithAuthor[], AxiosError>(
+  } = useQuery<ReviewWithAuthor[], AxiosError>(
     ['reviews', { placeId: id }],
     () => {
       return axios
-        .get<{ reviews: TReviewWithAuthor[] }>('/api/reviews', {
+        .get<{ reviews: ReviewWithAuthor[] }>('/api/reviews', {
           params: {
             placeId: id,
           },

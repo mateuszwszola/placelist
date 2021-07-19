@@ -1,5 +1,12 @@
 import { PrismaClient } from '@prisma/client';
 
+// eslint-disable-next-line @typescript-eslint/no-namespace
+declare namespace NodeJS {
+  interface Global {
+    prisma: PrismaClient;
+  }
+}
+
 // add prisma to the NodeJS global type
 interface CustomNodeJsGlobal extends NodeJS.Global {
   prisma: PrismaClient;
