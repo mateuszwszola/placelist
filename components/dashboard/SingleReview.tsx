@@ -1,8 +1,9 @@
 import * as React from 'react';
-import { Place } from '@prisma/client';
+import { Place, Review } from '@prisma/client';
 import Link from 'next/link';
 import type { ReviewWithAuthor } from 'pages/place/[id]';
 import '@reach/combobox/styles.css';
+import { DeleteIcon, EditIcon } from 'components/Icons';
 
 type ReviewWithAuthorAndPlace = ReviewWithAuthor & {
   place: Pick<Place, 'id' | 'city' | 'adminDivision' | 'country'>;
@@ -11,19 +12,38 @@ type ReviewWithAuthorAndPlace = ReviewWithAuthor & {
 interface Props {
   review: ReviewWithAuthorAndPlace;
   onDelete: () => void;
+  onSave: (review: Partial<Review>, onSuccess?: () => void) => void;
   isLoading: boolean;
 }
 
-const SingleReview = ({ review, onDelete, isLoading }: Props): JSX.Element => {
+const SingleReview = ({ review, onDelete, onSave, isLoading }: Props): JSX.Element => {
   const [isDeleting, setIsDeleting] = React.useState(false);
+  const [isEditing, setIsEditing] = React.useState(false);
   const cancelButtonRef = React.useRef<HTMLButtonElement>(null);
+  const editFormRef = React.useRef<HTMLFormElement>(null);
 
-  // Focus cancel button, every time user clicks delete
+  // Focus cancel button
   React.useEffect(() => {
-    if (cancelButtonRef.current && isDeleting) {
+    if (cancelButtonRef.current && (isDeleting || isEditing)) {
       cancelButtonRef.current.focus();
     }
-  }, [cancelButtonRef, isDeleting]);
+  }, [cancelButtonRef, isDeleting, isEditing]);
+
+  const handleSubmit = (e: React.SyntheticEvent): void => {
+    e.preventDefault();
+    if (!editFormRef.current) return;
+    const formData = new FormData(editFormRef.current);
+    const values = Object.fromEntries(formData.entries());
+    onSave(
+      {
+        id: review.id,
+        ...values,
+      },
+      () => {
+        setIsEditing(false);
+      }
+    );
+  };
 
   const placeFullName = [review.place.city, review.place.adminDivision, review.place.country]
     .filter(Boolean)
@@ -32,11 +52,28 @@ const SingleReview = ({ review, onDelete, isLoading }: Props): JSX.Element => {
   return (
     <div className="w-full max-w-xl">
       <div className="flex justify-end pt-1">
+        {!isEditing && !isDeleting && (
+          <>
+            <button
+              className="text-gray-500 hover:text-gray-600 focus:outline-none focus:text-gray-600 mr-2 duration-75"
+              onClick={() => setIsEditing(true)}
+            >
+              <EditIcon />
+            </button>
+            <button
+              className="text-gray-500 hover:text-red-500 focus:outline-none focus:text-red-500 duration-75"
+              onClick={() => setIsDeleting(true)}
+            >
+              <DeleteIcon />
+            </button>
+          </>
+        )}
+
         {isDeleting ? (
-          <div className="space-x-2">
+          <div className="space-x-2 text-sm">
             <button
               disabled={isLoading}
-              className="text-white bg-red-500 rounded px-2 py-1 font-medium"
+              className="text-white bg-red-500 hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-opacity-50 rounded px-2 py-1 font-medium duration-75"
               onClick={onDelete}
             >
               {isLoading ? 'Loading...' : 'Are you sure? Delete'}
@@ -44,60 +81,120 @@ const SingleReview = ({ review, onDelete, isLoading }: Props): JSX.Element => {
             <button
               ref={cancelButtonRef}
               disabled={isLoading}
-              className="border-2 rounded px-2 py-1 font-medium"
+              className="border rounded px-2 py-1 font-medium border-gray-300 hover:border-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-opacity-50 duration-75"
               onClick={() => setIsDeleting(false)}
             >
               Cancel
             </button>
           </div>
         ) : (
-          <button className="text-gray-500 hover:text-red-500" onClick={() => setIsDeleting(true)}>
-            <svg
-              className="w-6 h-6"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
-              />
-            </svg>
-            <span className="sr-only">Delete</span>
-          </button>
+          ''
         )}
       </div>
 
-      <div className="py-4 px-2">
-        <div className="flex justify-between">
-          <div className="flex space-x-2">
-            {review.author.image && (
-              <img
-                src={review.author.image}
-                className="rounded-full w-8 h-8"
-                alt={`${review.author.name}'s avatar`}
+      {isEditing ? (
+        <div>
+          <form ref={editFormRef} onSubmit={handleSubmit}>
+            <div className="flex justify-end text-sm">
+              <button
+                type="submit"
+                disabled={isLoading}
+                className="text-white bg-green-500 hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-opacity-50 rounded px-2 py-1 font-medium duration-75 mr-2"
+              >
+                {isLoading ? 'Loading...' : 'Save'}
+              </button>
+              <button
+                type="button"
+                ref={cancelButtonRef}
+                disabled={isLoading}
+                className="border rounded px-2 py-1 font-medium border-gray-300 hover:border-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-opacity-50 duration-75"
+                onClick={() => setIsEditing(false)}
+              >
+                Cancel
+              </button>
+            </div>
+            <fieldset className="flex flex-col">
+              <legend className="text-xs uppercase font-semibold text-gray-500 mb-1">Stats</legend>
+              <label>
+                Cost:
+                <input
+                  type="range"
+                  min={0}
+                  max={10}
+                  name="cost"
+                  id="cost"
+                  defaultValue={review.cost}
+                />
+              </label>
+              <label>
+                Safety:
+                <input
+                  type="range"
+                  min={0}
+                  max={10}
+                  name="safety"
+                  id="safety"
+                  defaultValue={review.safety}
+                />
+              </label>
+              <label>
+                Fun:
+                <input
+                  type="range"
+                  min={0}
+                  max={10}
+                  name="fun"
+                  id="fun"
+                  defaultValue={review.fun}
+                />
+              </label>
+            </fieldset>
+
+            <fieldset className="flex flex-col">
+              <legend className="text-xs uppercase font-semibold text-gray-500 mb-1">
+                Comment
+              </legend>
+              <textarea
+                defaultValue={review.comment || ''}
+                className="p-2 border border-gray-200 rounded-sm"
+                name="comment"
+                id="comment"
+                placeholder="Add a comment"
               />
-            )}
-            <div>
-              <h3 className="text-lg m-0">{review.author.name || 'User'}</h3>
-              <p className="text-xs text-gray-600">{new Date(review.createdAt).toLocaleString()}</p>
+            </fieldset>
+          </form>
+        </div>
+      ) : (
+        <div className="py-4 px-2">
+          <div className="flex justify-between">
+            <div className="flex space-x-2">
+              {review.author.image && (
+                <img
+                  src={review.author.image}
+                  className="rounded-full w-8 h-8"
+                  alt={`${review.author.name}'s avatar`}
+                />
+              )}
+              <div>
+                <h3 className="text-lg m-0">{review.author.name || 'User'}</h3>
+                <p className="text-xs text-gray-600">
+                  {new Date(review.createdAt).toLocaleString()}
+                </p>
+              </div>
+            </div>
+            <div className="flex space-x-2 text-sm font-semibold text-gray-700">
+              <p>Cost: {review.cost}/10</p>
+              <p>Safety: {review.safety}/10</p>
+              <p>Fun: {review.fun}/10</p>
             </div>
           </div>
-          <div className="flex space-x-2 text-sm font-semibold text-gray-700">
-            <p>Cost: {review.cost}/10</p>
-            <p>Safety: {review.safety}/10</p>
-            <p>Fun: {review.fun}/10</p>
-          </div>
-        </div>
-        <Link href={`/place/${review.place.id}`}>
-          <a className="text-blue-500 italic text-sm">{placeFullName}</a>
-        </Link>
+          <Link href={`/place/${review.place.id}`}>
+            <a className="text-blue-500 italic text-sm">{placeFullName}</a>
+          </Link>
 
-        {review.comment && <p className="mt-4">{review.comment}</p>}
-      </div>
+          {review.comment && <p className="mt-4">{review.comment}</p>}
+        </div>
+      )}
     </div>
   );
 };

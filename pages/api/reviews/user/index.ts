@@ -29,7 +29,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
             },
           },
           orderBy: {
-            updatedAt: 'desc',
+            createdAt: 'desc',
           },
           where: {
             author: {

@@ -1,6 +1,5 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
 import { getSession } from 'next-auth/client';
-import { pick } from 'lodash';
 import prisma from 'lib/prisma';
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse): Promise<void> {
@@ -50,14 +49,17 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       }
 
       if (req.method === 'PUT') {
-        const newValues = pick(req.body, ['comment', 'cost', 'safety', 'fun']);
+        const { comment, cost, safety, fun } = req.body;
 
         const updatedReview = await prisma.review.update({
           where: {
             id: Number(id),
           },
           data: {
-            ...newValues,
+            comment: comment || '',
+            cost: Number(cost),
+            safety: Number(safety),
+            fun: Number(fun),
           },
         });
 

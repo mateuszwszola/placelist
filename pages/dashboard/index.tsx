@@ -65,11 +65,36 @@ const Dashboard = (): React.ReactNode => {
     }
   );
 
+  const updateReviewMutation = useMutation<Review, AxiosError, Partial<Review>>(
+    (review) =>
+      axios.put(`/api/reviews/${review.id}`, review).then((response) => response.data.review),
+    {
+      onSuccess: (review) => {
+        queryClient.invalidateQueries(['reviews', 'user']);
+        queryClient.invalidateQueries(['reviews', { placeId: review.placeId }]);
+      },
+      onError: () => {
+        // On error, reset mutation after 5 seconds
+        setTimeout(() => {
+          updateReviewMutation.reset();
+        }, 5000);
+      },
+    }
+  );
+
   const handleReviewDelete = React.useCallback(
     (review: ReviewWithAuthorAndPlace) => () => {
       deleteReviewMutation.mutate(review);
     },
     [deleteReviewMutation]
+  );
+
+  const handleReviewSave = React.useCallback(
+    (review: Partial<Review>, onSuccess?: () => void) => {
+      updateReviewMutation.mutate(review);
+      if (onSuccess) onSuccess();
+    },
+    [updateReviewMutation]
   );
 
   if (loading) {
@@ -124,6 +149,7 @@ const Dashboard = (): React.ReactNode => {
                       key={review.id}
                       review={review}
                       onDelete={handleReviewDelete(review)}
+                      onSave={handleReviewSave}
                       isLoading={deleteReviewMutation.isLoading}
                     />
                   );
