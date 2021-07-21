@@ -90,9 +90,12 @@ const Dashboard = (): React.ReactNode => {
   );
 
   const handleReviewSave = React.useCallback(
-    (review: Partial<Review>, onSuccess?: () => void) => {
-      updateReviewMutation.mutate(review);
-      if (onSuccess) onSuccess();
+    (review: Partial<Review>, onSuccess?: (review?: Review) => void) => {
+      updateReviewMutation.mutate(review, {
+        onSuccess: (newReview) => {
+          if (onSuccess) onSuccess(newReview);
+        },
+      });
     },
     [updateReviewMutation]
   );
@@ -122,7 +125,7 @@ const Dashboard = (): React.ReactNode => {
           <h1 className="text-2xl">My Reviews</h1>
 
           <Link href="/dashboard/new-review">
-            <a className="py-2 px-4 bg-blue-500 text-white rounded-lg font-medium hover:bg-blue-600 active:bg-blue-600">
+            <a className="py-2 px-4 bg-blue-500 text-white rounded-lg font-medium hover:bg-blue-600 active:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-600 focus:ring-opacity-50 duration-75">
               New Review
             </a>
           </Link>
@@ -150,7 +153,8 @@ const Dashboard = (): React.ReactNode => {
                       review={review}
                       onDelete={handleReviewDelete(review)}
                       onSave={handleReviewSave}
-                      isLoading={deleteReviewMutation.isLoading}
+                      isPendingDelete={deleteReviewMutation.isLoading}
+                      isPendingSave={updateReviewMutation.isLoading}
                     />
                   );
                 })}

@@ -12,11 +12,18 @@ type ReviewWithAuthorAndPlace = ReviewWithAuthor & {
 interface Props {
   review: ReviewWithAuthorAndPlace;
   onDelete: () => void;
-  onSave: (review: Partial<Review>, onSuccess?: () => void) => void;
-  isLoading: boolean;
+  onSave: (review: Partial<Review>, onSuccess?: (review?: Review) => void) => void;
+  isPendingDelete: boolean;
+  isPendingSave: boolean;
 }
 
-const SingleReview = ({ review, onDelete, onSave, isLoading }: Props): JSX.Element => {
+const SingleReview = ({
+  review,
+  onDelete,
+  onSave,
+  isPendingDelete,
+  isPendingSave,
+}: Props): JSX.Element => {
   const [isDeleting, setIsDeleting] = React.useState(false);
   const [isEditing, setIsEditing] = React.useState(false);
   const cancelButtonRef = React.useRef<HTMLButtonElement>(null);
@@ -72,15 +79,15 @@ const SingleReview = ({ review, onDelete, onSave, isLoading }: Props): JSX.Eleme
         {isDeleting ? (
           <div className="space-x-2 text-sm">
             <button
-              disabled={isLoading}
+              disabled={isPendingDelete}
               className="text-white bg-red-500 hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-opacity-50 rounded px-2 py-1 font-medium duration-75"
               onClick={onDelete}
             >
-              {isLoading ? 'Loading...' : 'Are you sure? Delete'}
+              {isPendingDelete ? 'Loading...' : 'Are you sure? Delete'}
             </button>
             <button
               ref={cancelButtonRef}
-              disabled={isLoading}
+              disabled={isPendingDelete}
               className="border rounded px-2 py-1 font-medium border-gray-300 hover:border-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-opacity-50 duration-75"
               onClick={() => setIsDeleting(false)}
             >
@@ -98,15 +105,15 @@ const SingleReview = ({ review, onDelete, onSave, isLoading }: Props): JSX.Eleme
             <div className="flex justify-end text-sm">
               <button
                 type="submit"
-                disabled={isLoading}
+                disabled={isPendingSave}
                 className="text-white bg-green-500 hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-opacity-50 rounded px-2 py-1 font-medium duration-75 mr-2"
               >
-                {isLoading ? 'Loading...' : 'Save'}
+                {isPendingSave ? 'Loading...' : 'Save'}
               </button>
               <button
                 type="button"
                 ref={cancelButtonRef}
-                disabled={isLoading}
+                disabled={isPendingSave}
                 className="border rounded px-2 py-1 font-medium border-gray-300 hover:border-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-opacity-50 duration-75"
                 onClick={() => setIsEditing(false)}
               >

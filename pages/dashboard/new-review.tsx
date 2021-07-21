@@ -159,7 +159,7 @@ const NewReview = (): React.ReactNode => {
           <h1 className="text-2xl">New Review</h1>
 
           <Link href="/dashboard">
-            <a className="py-2 px-4 border-2 border-blue-500 rounded-lg font-medium hover:bg-blue-500 hover:text-white active:border-blue-600">
+            <a className="py-2 px-4 border-2 border-blue-500 rounded-lg font-medium hover:border-blue-600 active:border-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-600 focus:ring-opacity-50 duration-75">
               Cancel
             </a>
           </Link>
