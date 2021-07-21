@@ -1,12 +1,13 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
 import { getSession } from 'next-auth/client';
 import prisma from 'lib/prisma';
+import { ErrorHandler } from 'utils/error';
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse): Promise<void> {
   const { method } = req;
 
   try {
-    if (req.method === 'GET') {
+    if (method === 'GET') {
       const { id } = req.query;
 
       const review = await prisma.review.findUnique({
@@ -16,18 +17,18 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       });
 
       if (!review) {
-        return res.status(404).json({ message: 'Review not found' });
+        throw new ErrorHandler(404, `Review with id ${id} not found`);
       }
 
-      res.json({ review });
-    } else if (req.method === 'PUT' || req.method === 'DELETE') {
+      return res.json({ review });
+    } else if (method === 'PUT' || method === 'DELETE') {
+      const { id } = req.query;
+
       const session = await getSession({ req });
 
       if (!session?.user?.email) {
-        return res.status(401).json({ message: 'You are not authenticated' });
+        throw new ErrorHandler(401, 'You are not authenticated');
       }
-
-      const { id } = req.query;
 
       const existingReview = await prisma.review.findUnique({
         where: { id: Number(id) },
@@ -41,11 +42,11 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       });
 
       if (!existingReview) {
-        return res.status(404).json({ message: 'Review not found' });
+        throw new ErrorHandler(404, `Review with id ${id} not found`);
       }
 
       if (session.user.email !== existingReview.author?.email) {
-        return res.status(403).json({ message: 'You are not authorized' });
+        throw new ErrorHandler(403, 'You are not authorized');
       }
 
       if (req.method === 'PUT') {
@@ -63,20 +64,28 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
           },
         });
 
-        res.json({ review: updatedReview });
+        return res.json({ review: updatedReview });
       } else {
+        // DELETE
         const deletedReview = await prisma.review.delete({
           where: { id: Number(id) },
         });
 
-        res.json({ review: deletedReview });
+        return res.json({ review: deletedReview });
       }
     } else {
       res.setHeader('Allow', ['GET', 'PUT', 'DELETE']);
       res.status(405).json({ message: `Method ${method} Not Allowed` });
     }
-  } catch (err) {
-    console.log('An error has occured: ', err.message);
-    res.status(500).json({ message: `An error has occured: ${err.message}` });
+  } catch (error) {
+    // TODO: Add logging
+    console.error(error);
+    if (!res.headersSent) {
+      if (error instanceof ErrorHandler) {
+        res.status(error.statusCode).json({ message: error.message });
+      } else {
+        res.status(500).json({ message: 'Something went wrong.' });
+      }
+    }
   }
 }

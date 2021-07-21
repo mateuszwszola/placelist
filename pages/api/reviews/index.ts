@@ -5,8 +5,9 @@ import prisma from 'lib/prisma';
 import { pick } from 'lodash';
 import type { NextApiRequest, NextApiResponse } from 'next';
 import { getSession } from 'next-auth/client';
+import { ErrorHandler } from 'utils/error';
 
-type TLocationResponse = {
+type LocationResponse = {
   _links: {
     ['city:admin1_division']: {
       name: string;
@@ -57,7 +58,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       // Get user session
       const session = await getSession({ req });
       if (!session?.user?.email) {
-        return res.status(401).json({ message: 'You are not authenticated' });
+        throw new ErrorHandler(401, 'You are not authenticated');
       }
 
       // Get values
@@ -99,11 +100,11 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       // Validate location
       let locationResponse;
       try {
-        locationResponse = await axios.get<TLocationResponse>(
+        locationResponse = await axios.get<LocationResponse>(
           `${CITIES_ROOT_API_URL}/geonameid:${values.locationId}`
         );
       } catch (err) {
-        return res.status(400).json({ message: 'Location is ambiguous' });
+        throw new ErrorHandler(400, 'Location is ambiguous');
       }
 
       const { name: city } = locationResponse.data;
@@ -140,8 +141,14 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       res.setHeader('Allow', ['GET', 'POST']);
       res.status(405).json({ message: `Method ${method} Not Allowed` });
     }
-  } catch (err) {
-    console.log('An error has occured: ', err.message);
-    res.status(500).json({ message: `An error has occured: ${err.message}` });
+  } catch (error) {
+    console.error(error);
+    if (!res.headersSent) {
+      if (error instanceof ErrorHandler) {
+        res.status(error.statusCode).json({ message: error.message });
+      } else {
+        res.status(500).json({ message: 'Something went wrong.' });
+      }
+    }
   }
 }
