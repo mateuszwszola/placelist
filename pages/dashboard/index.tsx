@@ -132,7 +132,13 @@ const Dashboard = (): React.ReactNode => {
         </div>
         <div>
           <div className="text-center text-red-500">
-            {deleteReviewMutation.error && <DisplayError error={deleteReviewMutation.error} />}
+            {deleteReviewMutation.error ? (
+              <DisplayError error={deleteReviewMutation.error} />
+            ) : updateReviewMutation.error ? (
+              <DisplayError error={updateReviewMutation.error} />
+            ) : (
+              ''
+            )}
           </div>
 
           {status === 'loading' ? (

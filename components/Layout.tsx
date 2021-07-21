@@ -40,6 +40,9 @@ const Layout = ({ children, isLandingPage }: Props): JSX.Element => {
                 <Link href="/dashboard">Dashboard</Link>
               </li>
               <li>
+                <Link href="/profile">Profile</Link>
+              </li>
+              <li>
                 <button
                   className={`py-2 px-4 border-2 rounded-md font-medium ${
                     isLandingPage ? 'border-white' : 'border-black'
