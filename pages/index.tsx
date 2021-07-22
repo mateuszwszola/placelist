@@ -107,7 +107,7 @@ const Home = ({ places: initialPlaces }: Props): JSX.Element => {
               {!loading && !session && (
                 <>
                   <button
-                    className="py-2 px-4 bg-blue-500 text-sm sm:text-base uppercase tracking-wider text-white rounded-md mt-8 font-semibold hover:bg-blue-600 active:bg-blue-600 shadow-lg"
+                    className="py-2 px-4 bg-blue-500 text-sm sm:text-base uppercase tracking-wider text-white rounded-md mt-8 font-semibold hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-600 focus:ring-opacity-50 active:bg-blue-600 duration-75"
                     onClick={() => signIn()}
                   >
                     Join Placelist

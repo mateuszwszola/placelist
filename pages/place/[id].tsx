@@ -94,7 +94,7 @@ const PlacePage = ({ place }: { place: Place }): JSX.Element => {
       </Head>
 
       <main className="py-8 px-2 max-w-screen-xl mx-auto">
-        <h1 className="text-2xl">Place: {placeFullName}</h1>
+        <h1 className="text-xl sm:text-3xl">Place: {placeFullName}</h1>
 
         <div>
           {status === 'loading' ? (
