@@ -124,6 +124,7 @@ const AddReview = (): JSX.Element => {
           </fieldset>
 
           <button
+            data-cy="add-review-btn"
             className="py-2 px-4 bg-blue-500 text-white rounded font-medium hover:bg-blue-600 active:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-600 focus:ring-opacity-50 duration-75"
             type="submit"
           >

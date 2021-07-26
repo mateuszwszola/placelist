@@ -44,6 +44,7 @@ const Layout = ({ children, isLandingPage }: Props): JSX.Element => {
               </li>
               <li>
                 <button
+                  data-cy="sign-out-btn"
                   className={`py-2 px-4 border-2 rounded-md font-medium ${
                     isLandingPage ? 'border-white' : 'border-black'
                   }`}
@@ -57,6 +58,7 @@ const Layout = ({ children, isLandingPage }: Props): JSX.Element => {
             <>
               <li>
                 <button
+                  data-cy="sign-in-btn"
                   className={`py-2 px-4 border-2 rounded-md font-medium ${
                     isLandingPage ? 'border-white' : 'border-black'
                   }`}

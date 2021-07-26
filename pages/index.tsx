@@ -5,8 +5,8 @@ import Link from 'next/link';
 import * as React from 'react';
 import { signIn, useSession } from 'next-auth/client';
 import Layout from 'components/Layout';
-import { getPlacesWithStatistics } from 'lib/db';
 import type { PlaceWithStats } from 'lib/db';
+import { getPlacesWithStatistics } from 'lib/db';
 import { useInfiniteQuery } from 'react-query';
 import axios from 'axios';
 import useIntersectionObserver from 'utils/useIntersectionObserver';
@@ -93,7 +93,10 @@ const Home = ({ places: initialPlaces }: Props): JSX.Element => {
           {/* HERO CONTENT */}
           <div className="relative z-10 w-full h-full flex flex-col justify-center items-center px-2">
             <div className="text-center">
-              <h1 className="text-4xl md:text-5xl xl:text-6xl font-bold leading-tight text-white text-center">
+              <h1
+                data-cy="title"
+                className="text-4xl md:text-5xl xl:text-6xl font-bold leading-tight text-white text-center"
+              >
                 <span role="img" aria-label="World emoji">
                   🌍
                 </span>{' '}

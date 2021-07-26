@@ -1,6 +1,6 @@
 import '@reach/combobox/styles.css';
-import axios from 'axios';
 import type { AxiosError } from 'axios';
+import axios from 'axios';
 import Layout from 'components/Layout';
 import { useSession } from 'next-auth/client';
 import Head from 'next/head';
@@ -125,7 +125,10 @@ const Dashboard = (): React.ReactNode => {
           <h1 className="text-xl sm:text-3xl">My Reviews</h1>
 
           <Link href="/dashboard/new-review">
-            <a className="py-2 px-4 bg-blue-500 text-white rounded-lg font-medium hover:bg-blue-600 active:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-600 focus:ring-opacity-50 duration-75">
+            <a
+              data-cy="new-review-btn"
+              className="py-2 px-4 bg-blue-500 text-white rounded-lg font-medium hover:bg-blue-600 active:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-600 focus:ring-opacity-50 duration-75"
+            >
               New Review
             </a>
           </Link>
