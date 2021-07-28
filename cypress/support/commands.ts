@@ -1,3 +1,7 @@
+/* eslint-disable @typescript-eslint/triple-slash-reference */
+// @ts-check
+///<reference path="../global.d.ts" />
+
 // ***********************************************
 // This example commands.js shows you how to
 // create various custom commands and overwrite
@@ -28,7 +32,6 @@ Cypress.Commands.add('dataCy', (value) => {
   return cy.get(`[data-cy=${value}]`);
 });
 
-// Call it with cy.login()
 Cypress.Commands.add('login', (overrides = {}) => {
   Cypress.log({
     name: 'loginWithUsernameAndPassword',
