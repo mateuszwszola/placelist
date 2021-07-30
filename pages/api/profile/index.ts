@@ -1,7 +1,7 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
 import prisma from 'lib/prisma';
-import { getSession } from 'next-auth/client';
 import { ErrorHandler } from 'utils/error';
+import { requireUserSession } from 'utils/session';
 
 export default async function profileHandler(
   req: NextApiRequest,
@@ -11,28 +11,42 @@ export default async function profileHandler(
 
   try {
     if (method === 'GET') {
-      const session = await getSession({ req });
-
-      if (!session?.user?.email) {
-        throw new ErrorHandler(401, 'You are not authenticated');
-      }
-      // TODO: get user profile with some info like number of reviews added, favorite places
-      const user = await prisma.user.findUnique({
-        where: {
-          email: session.user.email,
-        },
-        select: {
-          name: true,
-          image: true,
-          profile: {
-            select: {
-              bio: true,
+      requireUserSession(req, async (session) => {
+        const userQuery = prisma.user.findUnique({
+          where: {
+            email: session.user?.email as string,
+          },
+          select: {
+            name: true,
+            image: true,
+            profile: {
+              select: {
+                bio: true,
+              },
             },
           },
-        },
-      });
+        });
 
-      return res.json({ profile: user });
+        // Get visited places
+        const visitedPlacesQuery = prisma.place.groupBy({
+          by: ['city', 'country', 'adminDivision'],
+          where: {
+            reviews: {
+              some: {
+                author: {
+                  email: session.user?.email as string,
+                },
+              },
+            },
+          },
+        });
+
+        const [user, visitedPlaces] = await Promise.all([userQuery, visitedPlacesQuery]);
+
+        Object.assign(user, { visitedPlaces: visitedPlaces });
+
+        return res.json({ profile: user });
+      });
     } else {
       res.setHeader('Allow', ['GET']);
       res.status(405).end(`Method ${method} Not Allowed`);
