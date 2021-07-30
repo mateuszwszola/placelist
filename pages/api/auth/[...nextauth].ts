@@ -5,7 +5,8 @@ import prisma from '../../../lib/prisma';
 
 const providers = [];
 
-if (process.env.NODE_ENV === 'development' || process.env.NODE_ENV === 'test') {
+// Add credentials auth provider for tests with Cypress
+if (process.env.CYPRESS === 'true') {
   providers.push(
     Providers.Credentials({
       id: 'credentials',
@@ -22,28 +23,12 @@ if (process.env.NODE_ENV === 'development' || process.env.NODE_ENV === 'test') {
         },
       },
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      async authorize(credentials, req) {
-        // You need to provide your own logic here that takes the credentials
-        // submitted and returns either a object representing a user or value
-        // that is false/null if the credentials are invalid.
-        // e.g. return { id: 1, name: 'J Smith', email: 'jsmith@example.com' }
-        // You can also use the `req` object to obtain additional parameters
-        // (i.e., the request IP address)
-        // const res = await fetch('/your/endpoint', {
-        //   method: 'POST',
-        //   body: JSON.stringify(credentials),
-        //   headers: { 'Content-Type': 'application/json' },
-        // });
-        // const user = await res.json();
-        // If no error and we have user data, return it
-        // if (res.ok && user) {
-        //   return user;
-        // }
-        // Return null if user data could not be retrieved
-        // return null;
+      async authorize(credentials: { username?: string; password?: string }, req) {
+        const { username } = credentials;
+
         const userData = {
-          name: 'Test User',
-          email: 'e2e@placelist.com',
+          name: username || 'e2e@placelist.com',
+          email: username || 'e2e@placelist.com',
         };
         const user = await prisma.user.upsert({
           where: {
@@ -74,6 +59,7 @@ export default NextAuth({
   adapter: Adapters.Prisma.Adapter({ prisma }),
   secret: process.env.NEXTAUTH_SECRET,
   session: {
-    jwt: true,
+    // Use jwt session in Cypress tests - required to use credentials provider
+    jwt: process.env.CYPRESS === 'true',
   },
 });
