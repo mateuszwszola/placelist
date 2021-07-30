@@ -11,7 +11,7 @@ export default async function profileHandler(
 
   try {
     if (method === 'GET') {
-      requireUserSession(req, async (session) => {
+      return requireUserSession(req, async (session) => {
         const userQuery = prisma.user.findUnique({
           where: {
             email: session.user?.email as string,
