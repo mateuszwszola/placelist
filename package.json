@@ -6,12 +6,18 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
+    "dev:cypress": "CYPRESS=true next dev",
     "type-check": "tsc --project tsconfig.json --pretty --noEmit",
     "lint": "eslint --ext js,jsx,ts,tsx --fix",
     "prepare": "husky install",
     "vercel-build": "prisma migrate deploy && next build",
     "prisma:generate": "prisma generate",
-    "postinstall": "prisma generate"
+    "prisma:studio": "prisma studio",
+    "db:reset": "prisma migrate reset",
+    "db:seed": "prisma db seed --preview-feature",
+    "postinstall": "prisma generate",
+    "cypress:open": "cypress open",
+    "ts-node": "ts-node --compiler-options \"{\\\"module\\\":\\\"commonjs\\\"}\""
   },
   "dependencies": {
     "@next-auth/prisma-adapter": "^0.4.4",
@@ -30,11 +36,15 @@
     "react-use": "^17.2.4"
   },
   "devDependencies": {
+    "@types/faker": "^5.5.7",
+    "@types/jest": "^26.0.24",
     "@types/lodash": "^4.14.170",
+    "@types/node": "^16.4.5",
     "@types/react": "17.0.11",
     "@typescript-eslint/eslint-plugin": "^4.27.0",
     "@typescript-eslint/parser": "^4.27.0",
     "autoprefixer": "^10.2.6",
+    "cypress": "^8.0.0",
     "eslint": "^7.29.0",
     "eslint-config-next": "^11.0.0",
     "eslint-config-prettier": "^8.3.0",
@@ -42,12 +52,14 @@
     "eslint-plugin-prettier": "^3.4.0",
     "eslint-plugin-react": "^7.24.0",
     "eslint-plugin-react-hooks": "^4.2.0",
+    "faker": "^5.5.3",
     "husky": "^6.0.0",
     "lint-staged": "^11.0.0",
     "postcss": "^8.3.5",
     "prettier": "^2.3.1",
-    "prisma": "^2.25.0",
+    "prisma": "2.25.0",
     "tailwindcss": "^2.2.2",
+    "ts-node": "^10.1.0",
     "typescript": "4.3.4"
   }
 }
