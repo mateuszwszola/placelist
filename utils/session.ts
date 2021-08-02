@@ -8,7 +8,7 @@ export async function requireUserSession(
   next: (session: Session) => void
 ): Promise<void> {
   const session = await getSession({ req });
-  if (!session?.user?.email) {
+  if (!session?.user) {
     throw new ErrorHandler(401, 'You are not authenticated');
   }
   return next(session);

@@ -12,7 +12,7 @@ export default async function profileHandler(
   try {
     if (method === 'GET') {
       return requireUserSession(req, async (session) => {
-        const userQuery = prisma.user.findUnique({
+        const profileQuery = prisma.user.findUnique({
           where: {
             email: session.user?.email as string,
           },
@@ -27,25 +27,32 @@ export default async function profileHandler(
           },
         });
 
-        // Get visited places
-        const visitedPlacesQuery = prisma.place.groupBy({
-          by: ['city', 'country', 'adminDivision'],
+        const userVisitedPlacesQuery = prisma.place.findMany({
           where: {
-            reviews: {
-              some: {
-                author: {
-                  email: session.user?.email as string,
-                },
-              },
+            id: {
+              in: (
+                await prisma.review.groupBy({
+                  by: ['placeId'],
+                  where: {
+                    author: {
+                      email: session.user?.email,
+                    },
+                  },
+                  take: 10,
+                  orderBy: {
+                    placeId: 'asc',
+                  },
+                })
+              ).map((place) => place.placeId),
             },
           },
         });
 
-        const [user, visitedPlaces] = await Promise.all([userQuery, visitedPlacesQuery]);
+        const [profile, visitedPlaces] = await Promise.all([profileQuery, userVisitedPlacesQuery]);
 
-        Object.assign(user, { visitedPlaces: visitedPlaces });
+        Object.assign(profile, { visitedPlaces: visitedPlaces });
 
-        return res.json({ profile: user });
+        return res.json({ profile });
       });
     } else {
       res.setHeader('Allow', ['GET']);

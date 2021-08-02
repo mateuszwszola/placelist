@@ -4,12 +4,13 @@ import DisplayError from 'components/DisplayError';
 import Layout from 'components/Layout';
 import { useSession } from 'next-auth/client';
 import Head from 'next/head';
+import Link from 'next/link';
 import { useQuery } from 'react-query';
 
 type ProfileResponse = {
   profile: User &
     Profile & {
-      visitedPlaces: Array<Pick<Place, 'city' | 'country' | 'adminDivision'>>;
+      visitedPlaces: Place[];
     };
 };
 
@@ -66,11 +67,17 @@ function ProfilePage(): JSX.Element {
                 <p>Feel free to add your first review</p>
               ) : (
                 <ul className="space-y-2">
-                  {data.profile.visitedPlaces.map((place, idx) => {
+                  {data.profile.visitedPlaces.map((place) => {
                     const location = [place.city, place.adminDivision, place.country]
                       .filter(Boolean)
                       .join(', ');
-                    return <li key={idx}>{location}</li>;
+                    return (
+                      <li key={place.id}>
+                        <Link href={`/place/${place.id}`}>
+                          <a className="text-blue-500">{location}</a>
+                        </Link>
+                      </li>
+                    );
                   })}
                 </ul>
               )}

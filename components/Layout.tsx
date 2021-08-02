@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { signIn, signOut, useSession } from 'next-auth/client';
+import { signOut, useSession } from 'next-auth/client';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import Image from 'next/image';
@@ -15,7 +15,7 @@ const Layout = ({ children, isLandingPage }: Props): JSX.Element => {
 
   const handleSignOut = async (): Promise<void> => {
     const { url } = await signOut({ redirect: false, callbackUrl: '/' });
-    router.replace(url);
+    await router.replace(url);
   };
 
   let navClassnames = 'w-full absolute z-50';
@@ -57,15 +57,16 @@ const Layout = ({ children, isLandingPage }: Props): JSX.Element => {
           ) : (
             <>
               <li>
-                <button
-                  data-cy="sign-in-btn"
-                  className={`py-2 px-4 border-2 rounded-md font-medium ${
-                    isLandingPage ? 'border-white' : 'border-black'
-                  }`}
-                  onClick={() => signIn()}
-                >
-                  Sign In
-                </button>
+                <Link href="/signin">
+                  <a
+                    data-cy="sign-in-btn"
+                    className={`block py-2 px-4 border-2 rounded-md font-medium ${
+                      isLandingPage ? 'border-white' : 'border-black'
+                    }`}
+                  >
+                    Sign In
+                  </a>
+                </Link>
               </li>
             </>
           )}
