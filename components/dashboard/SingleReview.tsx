@@ -41,6 +41,19 @@ const SingleReview = ({
     if (!editFormRef.current) return;
     const formData = new FormData(editFormRef.current);
     const values = Object.fromEntries(formData.entries());
+
+    const { comment, cost, safety, fun } = values;
+
+    if (
+      review.comment === comment &&
+      review.cost === Number(cost) &&
+      review.safety === Number(safety) &&
+      review.fun === Number(fun)
+    ) {
+      // Review not changed
+      return setIsEditing(false);
+    }
+
     onSave(
       {
         id: review.id,
