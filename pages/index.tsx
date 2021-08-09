@@ -3,7 +3,7 @@ import Layout from 'components/Layout';
 import type { PlaceWithStats } from 'lib/db';
 import { getPlacesWithStatistics } from 'lib/db';
 import type { GetStaticProps } from 'next';
-import { useSession } from 'next-auth/client';
+import { signIn, useSession } from 'next-auth/client';
 import Head from 'next/head';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -108,11 +108,12 @@ const Home = ({ places: initialPlaces }: Props): JSX.Element => {
             <div>
               {!loading && !session && (
                 <>
-                  <Link href="/signin">
-                    <a className="block py-2 px-4 bg-blue-500 text-sm sm:text-base uppercase tracking-wider text-white rounded-md mt-8 font-semibold hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-600 focus:ring-opacity-50 active:bg-blue-600 duration-75">
-                      Join Placelist
-                    </a>
-                  </Link>
+                  <button
+                    className="py-2 px-4 bg-blue-500 text-sm sm:text-base uppercase tracking-wider text-white rounded-md mt-8 font-semibold hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-600 focus:ring-opacity-50 active:bg-blue-600 duration-75"
+                    onClick={() => signIn()}
+                  >
+                    Join Placelist
+                  </button>
                 </>
               )}
             </div>

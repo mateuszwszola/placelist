@@ -38,7 +38,9 @@ if (process.env.CYPRESS === 'true') {
             name: userData.name,
             email: userData.email,
           },
-          update: {},
+          update: {
+            name: userData.name,
+          },
         });
 
         return Promise.resolve(user);
