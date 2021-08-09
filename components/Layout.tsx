@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { signOut, useSession } from 'next-auth/client';
+import { signIn, signOut, useSession } from 'next-auth/client';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import Image from 'next/image';
@@ -57,16 +57,15 @@ const Layout = ({ children, isLandingPage }: Props): JSX.Element => {
           ) : (
             <>
               <li>
-                <Link href="/signin">
-                  <a
-                    data-cy="sign-in-btn"
-                    className={`block py-2 px-4 border-2 rounded-md font-medium ${
-                      isLandingPage ? 'border-white' : 'border-black'
-                    }`}
-                  >
-                    Sign In
-                  </a>
-                </Link>
+                <button
+                  data-cy="sign-in-btn"
+                  className={`py-2 px-4 border-2 rounded-md font-medium ${
+                    isLandingPage ? 'border-white' : 'border-black'
+                  }`}
+                  onClick={() => signIn()}
+                >
+                  Sign In
+                </button>
               </li>
             </>
           )}
