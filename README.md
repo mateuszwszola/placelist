@@ -2,8 +2,6 @@
 
 > Find the best places to visit, based on reviews from the community of travelers.
 
-https://placelist.vercel.app/
-
 ![project-preview](https://res.cloudinary.com/dtti654qn/image/upload/c_scale,w_1280/v1626618846/github-projects/placelist_yu4flc.png)
 
 ## Description 
